@@ -24,7 +24,8 @@ function getCumalativeValues(current_time){
             medical:0,
             shake_intensity:0,
             roads_and_bridges:0,
-            buildings:0
+            buildings:0,
+            count:0,
       });
     }
     cumulative_map = new Array();
@@ -46,6 +47,20 @@ function getCumalativeValues(current_time){
         final_data[ind].shake_intensity+= +cumulative_map[k].shake_intensity
         final_data[ind].roads_and_bridges+= parseFloat(cumulative_map[k].roads_and_bridges)
         final_data[ind].buildings+= parseFloat(cumulative_map[k].buildings)
+        final_data[ind].count+=1
+    }
+    // now finding mean of all values
+    for(let k=0;k<21;k++){
+        if(final_data[k].count>0){
+                let total = final_data[k].count;
+                final_data[k].app_responses/=total
+                final_data[k].sewer_and_water/=total
+                final_data[k].power/=total
+                final_data[k].medical/=total
+                final_data[k].shake_intensity/=total
+                final_data[k].roads_and_bridges/=total
+                final_data[k].buildings/=total
+        }
     }
     console.log(final_data) // just to check if everything works fine.
  }
