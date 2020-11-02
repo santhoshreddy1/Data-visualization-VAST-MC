@@ -1,6 +1,6 @@
 var svg, earthData,start_time="2020-04-06 00:00:00";
 var datamap;
-var current_time;
+var current_time="2020-04-06 00:00:00";
 var final_data;
 var cumulative;
 document.addEventListener('DOMContentLoaded', function() {
@@ -11,9 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
     drawallCharts();
     })
   });
-function getCumalativeValues(current_time){
+function getCumalativeValues(){
     let D1 = new Date(current_time)
-    let ind  = 0;
     final_data = new Array()
     // create an array of Objects o size equal to total number of cities
     for( let x = 0; x<21; x++){
@@ -50,7 +49,7 @@ function getCumalativeValues(current_time){
         final_data[ind].count+=1
     }
     // now finding mean of all values
-    for(let k=0;k<21;k++){
+    for(let k=0;k<20;k++){
         if(final_data[k].count>0){
                 let total = final_data[k].count;
                 final_data[k].app_responses/=total
@@ -62,14 +61,14 @@ function getCumalativeValues(current_time){
                 final_data[k].buildings/=total
         }
     }
-    console.log(final_data) // just to check if everything works fine.
- }
+    console.log(final_data)
+}
+    
 
 function  drawallCharts()
 {
-    current_time = "2020-04-06 00:10:00";  // taken from slider I guess not sure!!..
-    getCumalativeValues(current_time);
-    // use final_data map to get access to all cumalative values
+    
+    getCumalativeValues();
     heatMap();
     pieChart();
     lineChart();
@@ -86,7 +85,7 @@ function changebuttuon()
   myTimer = setInterval (function() {
       var b= d3.select("#rangeSlider");
       var t = (+b.property("value") + 300) % (+b.property("max") + 300);
-      time=formatDT(new Date(t*1000));
+      current_time=formatDT(new Date(t*1000));
       drawallCharts();
       if (t == 0) { t = +b.property("min"); }
       b.property("value", t);
@@ -105,7 +104,7 @@ function changeslider()
   myTimer = setInterval (function() {
       var b= d3.select("#rangeSlider");
       var t = (+b.property("value") + 300) % (+b.property("max") + 300);
-      time=formatDT(new Date(t*1000));
+      current_time=formatDT(new Date(t*1000));
       drawallCharts();
       if (t == 0) { t = +b.property("max");
       clearInterval (myTimer); }
@@ -131,22 +130,22 @@ function changeslider()
   
  function heatMap()
  {
-
+ // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
  }
  function pieChart()
  {
-
+// use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
  }
  function lineChart()
  {
-
+ // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
  }
  function gridChart()
  {
-
+ // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
  }
  function innovativeChart()
  {
-
+ // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
  }
  
