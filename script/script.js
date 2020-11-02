@@ -1,19 +1,64 @@
-var svg, earthData,time="2020-04-06 00:00:00";
-
+var svg, earthData,start_time="2020-04-06 00:00:00";
+var datamap;
+var current_time;
+var final_data;
+var cumulative;
 document.addEventListener('DOMContentLoaded', function() {
     svg = d3.select('#map');
     Promise.all([d3.csv('data/aggregated_mc1_data.csv')]).then(function(values){
     earthData=values[0] ;
-
+    datamap = values;
     drawallCharts();
     })
   });
+function getCumalativeValues(current_time){
+    let D1 = new Date(current_time)
+    let ind  = 0;
+    final_data = new Array()
+    // create an array of Objects o size equal to total number of cities
+    for( let x = 0; x<21; x++){
+            final_data.push({
+            app_responses:0,
+            sewer_and_water:0,
+            power:0,
+            medical:0,
+            shake_intensity:0,
+            roads_and_bridges:0,
+            buildings:0
+      });
+    }
+    cumulative_map = new Array();
+    datamap.forEach(function(data){
+            for( k in data){
+                if(new Date(data[k].time)<=D1){// find all rows of values <= D1 date
+                    cumulative_map.push(data[k])
+                }
+            }
+    });
+  // here we finally compute a cumulative sum of all values per city
+  // index of final data array ie 1,2,3...19 gives the cumulative sum per attribute like app response
+     for( let k =0 ;k< cumulative_map.length;k++){
+       let ind = +cumulative_map[k].location;
+        final_data[ind].app_responses +=  +cumulative_map[k].app_responses
+        final_data[ind].sewer_and_water+=  +cumulative_map[k].sewer_and_water
+        final_data[ind].power+= +cumulative_map[k].power
+        final_data[ind].medical+= +cumulative_map[k].medical
+        final_data[ind].shake_intensity+= +cumulative_map[k].shake_intensity
+        final_data[ind].roads_and_bridges+= parseFloat(cumulative_map[k].roads_and_bridges)
+        final_data[ind].buildings+= parseFloat(cumulative_map[k].buildings)
+    }
+    console.log(final_data) // just to check if everything works fine.
+ }
+
 function  drawallCharts()
 {
-heatMap();
-pieChart();
-lineChart();
-gridChart();
+    current_time = "2020-04-06 00:10:00";  // taken from slider I guess not sure!!..
+    getCumalativeValues(current_time);
+    // use final_data map to get access to all cumalative values
+    heatMap();
+    pieChart();
+    lineChart();
+    gridChart();
 innovativeChart();
 }
 var myTimer;
