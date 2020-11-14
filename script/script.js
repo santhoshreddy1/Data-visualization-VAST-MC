@@ -257,6 +257,16 @@ function changeslider()
         if(d3.select(this).node().checked==true)
         grp.push( d3.select(this).property("value")); 
       })
+      if(grp.length==0)
+      {
+        d3.selectAll(".checkbox").property('checked',true);
+        d3.selectAll(".checkbox").each(function(d){
+          if(d3.select(this).node().checked==true)
+          grp.push( d3.select(this).property("value")); 
+        })
+        average(grp)
+      }
+      else
       average(grp)
     }
 
