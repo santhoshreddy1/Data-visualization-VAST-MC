@@ -154,7 +154,7 @@ function changeslider()
     let path = d3.geoPath()
     .projection(projection);
 
-    var extent = [0.0, 7.0]
+    var extent = [0.0, 10.0]
      var colorScale = d3.scaleSequential(d3.interpolateBrBG)
                      .domain(extent);
     svgMap = d3.select('#worldMap')
@@ -176,11 +176,14 @@ function changeslider()
         .enter()
         .append("path")
         .attr("d", path)
-        .attr('id', d => { return d.properties.Nbrhood === NaN ? "":d.properties.Nbrhood })
+        .attr('id', d => { return d.properties.Nbrhood })
         .style("stroke", "black")
         .style("stroke-width", "1")
         .style('fill', d => {
-                  return colorScale(d.properties.newkey);
+                if(isNaN(d.properties.newkey)){
+                    return colorScale(0.1);
+                }
+                 else{ return colorScale(d.properties.newkey);}
             })
         .attr("title", function(d,i) {
         console.log(d.properties.Nbrhood)
@@ -198,6 +201,9 @@ function changeslider()
          divM.html(d.properties.Nbrhood)
                .style("left", (d3.event.pageX + 10) + "px")
                .style("top", (d3.event.pageY - 15) + "px");
+               if(d.properties.Nbrhood ==="Wilson Forest"){
+                console.log(d.properties)
+               }
            console.log('mouseover on ' + d.properties.Nbrhood);
     })
     .on('mouseout', function(d,i) {
