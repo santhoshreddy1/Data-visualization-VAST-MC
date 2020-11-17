@@ -72,7 +72,7 @@ function getCumalativeValues(){
         }
         final_data[k].location = k;
     }
-    console.log("Final Data: ", final_data);
+    console.log("Final Data: ", final_data[7]);
 }
     
 
@@ -198,7 +198,7 @@ function changeslider()
         divM.transition()
                .duration(50)
                .style("opacity", 1);
-         divM.html(d.properties.Nbrhood)
+         divM.html(d.properties.Nbrhood+i)
                .style("left", (d3.event.pageX + 10) + "px")
                .style("top", (d3.event.pageY - 15) + "px");
                if(d.properties.Nbrhood ==="Wilson Forest"){
@@ -268,12 +268,17 @@ function changeslider()
  function updateMapData(){
     console.log(final_data.length)
     let avgsum = new Array();
+    
     for(let i=1;i<=19;i++){
-        avgsum.push((final_data[i].sewer_and_water+
-                        final_data[i].power+
-                        final_data[i].medical+
-                        final_data[i].buildings+
-                        final_data[i].roads_and_bridges)/5);
+      var count=0
+      var sum = 0
+      if(!Number.isNaN(final_data[i].sewer_and_water)){count+=1;sum+=final_data[i].sewer_and_water}
+      if(!Number.isNaN(final_data[i].power)){count+=1;sum+=final_data[i].power}
+      if(!Number.isNaN(final_data[i].medical)){count+=1;sum+=final_data[i].medical}
+      if(!Number.isNaN(final_data[i].buildings)){count+=1;sum+=final_data[i].buildings}
+      if(!Number.isNaN(final_data[i].roads_and_bridges)){count+=1;sum+=final_data[i].roads_and_bridges}
+        
+        avgsum.push(sum/count);
     }
     console.log("AvgSum: "+ avgsum);
     for(let i=1;i<=19;i++){
@@ -372,7 +377,7 @@ function changeslider()
       }
       avg_val.push((val/l))
       }
-      console.log("Avg: ", avg_val, final_data);
+      // console.log("Avg: ", avg_val, final_data);
   
       circle
         .each(function transition(d){
