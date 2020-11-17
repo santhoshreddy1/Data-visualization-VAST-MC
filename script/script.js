@@ -269,13 +269,11 @@ function changeslider()
     console.log(final_data.length)
     let avgsum = new Array();
     for(let i=1;i<=19;i++){
-        avgsum.push((final_data[i].app_responses+
-                        final_data[i].sewer_and_water+
+        avgsum.push((final_data[i].sewer_and_water+
                         final_data[i].power+
                         final_data[i].medical+
-                        final_data[i].shake_intensity+
                         final_data[i].buildings+
-                        final_data[i].roads_and_bridges)/7);
+                        final_data[i].roads_and_bridges)/5);
     }
     console.log("AvgSum: "+ avgsum);
     for(let i=1;i<=19;i++){
