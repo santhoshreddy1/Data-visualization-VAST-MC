@@ -1,10 +1,20 @@
 var svg, earthData,start_time="2020-04-06 00:00:00";
 var datamap;
+var mapdata;
 var current_time="2020-04-06 00:00:00";
 var final_data;
 var cumulative;
+var Mapwidth = 550;
+var Mapheight =470;
+var svgMap;
+var divM;
+
+
 document.addEventListener('DOMContentLoaded', function() {
     svg = d3.select('#map');
+    Promise.all([d3.json('data/map-geo.json')]).then(function(json){
+        mapdata = json
+    })
     Promise.all([d3.csv('data/aggregated_mc1_data.csv')]).then(function(values){
     earthData = values[0] ;
     datamap = values;
@@ -132,7 +142,140 @@ function changeslider()
   
  function heatMap()
  {
- // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
+     divM = d3.select("body").append("div")
+     .attr("class", "tooltip-donut")
+     .style("opacity", 0);
+
+    let projection = d3.geoMercator()
+    .scale(110000)
+    .center([-119, 0.01])
+    .translate([1900,450]);
+
+    let path = d3.geoPath()
+    .projection(projection);
+
+    var extent = [0.0, 7.0]
+     var colorScale = d3.scaleSequential(d3.interpolateBrBG)
+                     .domain(extent);
+    svgMap = d3.select('#worldMap')
+    .attr("transform", "translate(850,-800)")
+    .attr('width', Mapwidth)
+    .attr('height', Mapheight);
+
+    svgMap.selectAll("*").remove();
+    svgMap.append('rect')
+    .style("fill","white")
+    .attr('width', Mapwidth)
+    .attr('height', Mapheight);
+
+    let g = svgMap.append('g');
+    updateMapData();
+
+     svgMap.selectAll("path")
+        .data(mapdata[0].features)
+        .enter()
+        .append("path")
+        .attr("d", path)
+        .attr('id', d => { return d.properties.Nbrhood === NaN ? "":d.properties.Nbrhood })
+        .style("stroke", "black")
+        .style("stroke-width", "1")
+        .style('fill', d => {
+                  return colorScale(d.properties.newkey);
+            })
+        .attr("title", function(d,i) {
+        console.log(d.properties.Nbrhood)
+        return d.properties.Nbrhood;
+      })
+       .on('mouseover', function(d,i) {
+         d3.select(this).transition()
+               .duration('50')
+               .style('stroke','cyan')
+               .attr('opacity', '.85')
+               .attr('stroke-width','4');
+        divM.transition()
+               .duration(50)
+               .style("opacity", 1);
+         divM.html(d.properties.Nbrhood)
+               .style("left", (d3.event.pageX + 10) + "px")
+               .style("top", (d3.event.pageY - 15) + "px");
+           console.log('mouseover on ' + d.properties.Nbrhood);
+    })
+    .on('mouseout', function(d,i) {
+        d3.select(this).transition()
+               .duration('50')
+               .style('stroke','black')
+               .attr('opacity', '1')
+               .attr('stroke-width','1');
+        divM.transition()
+              .duration('50')
+              .style("opacity", 0);
+      console.log('mouseout on ' + d.properties.Nbrhood);
+    });
+
+
+    var lineInnerHeight = 430;
+
+    const defs = svgMap.append("defs");
+
+    const linearGradient = defs
+        .append("linearGradient")
+        .attr("id", "linear-gradient");
+
+    linearGradient
+     .selectAll("stop")
+     .data(
+         colorScale.ticks().map((t, i, n) => ({
+         offset: `${(100 * i) / n.length}%`,
+         color: colorScale(t),
+        }))
+     )
+      .enter()
+      .append("stop")
+      .attr("offset", (d) => d.offset)
+      .attr("stop-color", (d) => d.color);
+
+  var barHeight = 20;
+  var barWidth = 200;
+
+  let legendGroup = svgMap.append("g");
+  legendGroup
+    .append("rect")
+    .attr("x", 25)
+    .attr("y", -barHeight)
+    .attr("width", barWidth)
+    .attr("height", barHeight)
+    .style("fill", "url(#linear-gradient)");
+
+  var legendScale = d3
+    .scaleLinear()
+    .domain([0, extent[1]])
+    .range([25, barWidth + 25]);
+
+  var legendAxis = d3.axisBottom(legendScale).ticks(5).tickSize(-barHeight);
+
+  legendGroup
+    .attr("class", `x-axis`)
+    .attr("transform", `translate(0,${lineInnerHeight})`)
+    .call(legendAxis);
+}
+
+ function updateMapData(){
+    console.log(final_data.length)
+    let avgsum = new Array();
+    for(let i=1;i<=19;i++){
+        avgsum.push((final_data[i].app_responses+
+                        final_data[i].sewer_and_water+
+                        final_data[i].power+
+                        final_data[i].medical+
+                        final_data[i].shake_intensity+
+                        final_data[i].buildings+
+                        final_data[i].roads_and_bridges)/7);
+    }
+    console.log("AvgSum: "+ avgsum);
+    for(let i=1;i<=19;i++){
+        let newval = avgsum[i-1];
+        mapdata[0].features[i-1].properties['newkey'] = newval;
+    }
  }
  function pieChart()
  {
