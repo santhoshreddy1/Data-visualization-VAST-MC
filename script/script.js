@@ -1,7 +1,8 @@
-var svg, earthData,start_time="2020-04-06 00:00:00";
+var svg,start_time="2020-04-06 00:00:00";
 var datamap;
 var mapdata;
 var current_time="2020-04-06 00:00:00";
+var last_time="2020-04-06 00:00:00"
 var final_data;
 var cumulative;
 var Mapwidth = 550;
@@ -16,12 +17,14 @@ document.addEventListener('DOMContentLoaded', function() {
         mapdata = json
     })
     Promise.all([d3.csv('data/aggregated_mc1_data.csv')]).then(function(values){
-    earthData = values[0] ;
     datamap = values;
     drawallCharts();
     })
   });
+
+
 function getCumalativeValues(){
+  console.log(current_time,last_time)
     let D1 = new Date(current_time)
     final_data = new Array()
     // create an array of Objects o size equal to total number of cities
@@ -40,7 +43,7 @@ function getCumalativeValues(){
     cumulative_map = new Array();
     datamap.forEach(function(data){
             for( k in data){
-                if(new Date(data[k].time)<=D1){// find all rows of values <= D1 date
+                if(data[k].time<=current_time && data[k].time>=last_time){// find all rows of values <= D1 date
                     cumulative_map.push(data[k])
                 }
             }
@@ -69,10 +72,11 @@ function getCumalativeValues(){
                 final_data[k].shake_intensity/=total;
                 final_data[k].roads_and_bridges/=total;
                 final_data[k].buildings/=total;
+                
         }
         final_data[k].location = k;
     }
-    console.log("Final Data: ", final_data[7]);
+    
 }
     
 
@@ -97,6 +101,8 @@ function changebuttuon()
   myTimer = setInterval (function() {
       var b= d3.select("#rangeSlider");
       var t = (+b.property("value") + 300) % (+b.property("max") + 300);
+      var t1= (+b.property("value") - 3300) % (+b.property("max") - 3300)
+      last_time=formatDT(new Date(t1*1000));
       current_time=formatDT(new Date(t*1000));
       drawallCharts();
       if (t == 0) { t = +b.property("min"); }
@@ -116,6 +122,8 @@ function changeslider()
   myTimer = setInterval (function() {
       var b= d3.select("#rangeSlider");
       var t = (+b.property("value") + 300) % (+b.property("max") + 300);
+      var t1= (+b.property("value") - 3300) % (+b.property("max") - 3300)
+      last_time=formatDT(new Date(t1*1000));
       current_time=formatDT(new Date(t*1000));
       drawallCharts();
       if (t == 0) { t = +b.property("max");
@@ -186,7 +194,6 @@ function changeslider()
                  else{ return colorScale(d.properties.newkey);}
             })
         .attr("title", function(d,i) {
-        console.log(d.properties.Nbrhood)
         return d.properties.Nbrhood;
       })
        .on('mouseover', function(d,i) {
@@ -202,9 +209,9 @@ function changeslider()
                .style("left", (d3.event.pageX + 10) + "px")
                .style("top", (d3.event.pageY - 15) + "px");
                if(d.properties.Nbrhood ==="Wilson Forest"){
-                console.log(d.properties)
+                
                }
-           console.log('mouseover on ' + d.properties.Nbrhood);
+          
     })
     .on('mouseout', function(d,i) {
         d3.select(this).transition()
@@ -215,7 +222,7 @@ function changeslider()
         divM.transition()
               .duration('50')
               .style("opacity", 0);
-      console.log('mouseout on ' + d.properties.Nbrhood);
+      
     });
 
 
@@ -266,7 +273,7 @@ function changeslider()
 }
 
  function updateMapData(){
-    console.log(final_data.length)
+   
     let avgsum = new Array();
     
     for(let i=1;i<=19;i++){
@@ -280,7 +287,7 @@ function changeslider()
         
         avgsum.push(sum/count);
     }
-    console.log("AvgSum: "+ avgsum);
+    
     for(let i=1;i<=19;i++){
         let newval = avgsum[i-1];
         mapdata[0].features[i-1].properties['newkey'] = newval;
@@ -377,7 +384,7 @@ function changeslider()
       }
       avg_val.push((val/l))
       }
-      // console.log("Avg: ", avg_val, final_data);
+      
   
       circle
         .each(function transition(d){
@@ -387,8 +394,7 @@ function changeslider()
       .transition()
   
       .duration(function (params) {
-        // console.log("avg: ", d, avg_val[d],  velScale(avg_val[d]))
-        return velScale(avg_val[d]) 
+                return velScale(avg_val[d]) 
       })
   
       .attr("cy", (iheight-imargin.bottom-100))
