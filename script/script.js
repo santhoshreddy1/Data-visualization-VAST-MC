@@ -9,6 +9,7 @@ var Mapwidth = 550;
 var Mapheight =470;
 var svgMap;
 var divM;
+var uncerData,barData;
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -16,6 +17,10 @@ document.addEventListener('DOMContentLoaded', function() {
     Promise.all([d3.json('data/map-geo.json')]).then(function(json){
         mapdata = json
     })
+    Promise.all([d3.csv('data/uncertainty_mc1_data.csv')]).then(function(val){
+      uncerData = val;
+      uncerData=uncerData[0];
+  })
     Promise.all([d3.csv('data/aggregated_mc1_data.csv')]).then(function(values){
     datamap = values;
     drawallCharts();
@@ -24,11 +29,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function getCumalativeValues(){
-  console.log(current_time,last_time)
+ 
     let D1 = new Date(current_time)
     final_data = new Array()
     // create an array of Objects o size equal to total number of cities
-    for( let x = 0; x<21; x++){
+    for( let x = 0; x<20; x++){
             final_data.push({
             app_responses:0,
             sewer_and_water:0,
@@ -345,19 +350,19 @@ function changeslider()
   isvg.append("g").attr("id", "bars");
 
   var bars = isvg.select("#bars")
-                   .selectAll("rect")
-                   .data(final_data);
+  .selectAll("rect")
+  .data(final_data);
 
-  bars.enter().append("rect")
-    .attr("class", "bar")
-    .attr("width", imargin.left)
-    .attr("x", function(d, i) {
-      return xScale(d.location) - (imargin.left/2);
-    })
-    .attr("y", iheight)
-    .attr("height", function(d) {
-      return yScale(d.sewer_and_water);
-    });
+bars.enter().append("rect")
+.attr("class", "bar")
+.attr("width", imargin.left)
+.attr("x", function(d, i) {
+return xScale(d.location) - (imargin.left/2);
+})
+.attr("y", iheight)
+.attr("height", function(d) {
+return yScale(d.sewer_and_water);
+});
 
     //Amy:
     d3.selectAll(".checkbox").on("change",update);
@@ -371,21 +376,30 @@ function changeslider()
      var circle = isvg.selectAll("circle").data(loc).enter()
      .append("circle")
      .attr("r", 10);
-
+      barData=[];
      circle.interrupt();
-    //  .selectAll("*").interrupt();
-
-      for(j=0;j<final_data.length;j++)
+    
+      for(j=0;j<final_data.length-1;j++)
       {
-        var val=0;
+        var val=0,uncertval=0;
       for(i=0;i<l;i++)
       {
-        val+=final_data[j][grp[i]];
-      }
-      avg_val.push((val/l))
+        val+=final_data[j+1][grp[i]];
+  
+        if(final_data[j][grp[i]]<uncerData[j][grp[i]+"_low"])
+        {
+          uncertval+=(uncerData[j][grp[i]+"_low"]-final_data[j][grp[i]]);
+        }
+        if(final_data[j][grp[i]]>uncerData[j][grp[i]+"_high"])
+        {
+          uncertval+=(final_data[j][grp[i]]-uncerData[j][grp[i]+"_low"]);
+        }
       }
       
-  
+      barData.push(uncertval/l)
+     
+      avg_val.push((val/l))
+      }
       circle
         .each(function transition(d){
           d3.select(this)
