@@ -6,10 +6,10 @@
     margin: auto;
     margin-top: 10px;
   }
- 
+
 
   rect .bars {
-    fill: black;
+    fill: blue;
   
   }
   div.tooltip-donut {
@@ -23,3 +23,61 @@
      pointer-events: none;
      font-size: 1.3rem;
 }
+
+input[type=range]{
+  /* fix for FF unable to apply focus style bug  */
+  border: 1px solid white; 
+
+  /*required for proper track sizing in FF*/
+  width: 400px;
+  margin-left: 40px;
+}
+
+input[type=range]::-moz-range-track {
+  width: 400px;
+  height: 5px;
+  background: #ddd;
+  border: none;
+  border-radius: 3px;
+}
+
+input[type=range]::-moz-range-thumb {
+  border: none;
+  height: 20px;
+  width: 10px;
+  border-radius: 10%;
+  background: goldenrod;
+}
+
+/*hide the outline behind the border*/
+input[type=range]:-moz-focusring{
+  outline: 1px solid white;
+  outline-offset: -1px;
+}
+
+input[type=range]:focus::-moz-range-track {
+  background: #ccc;
+}
+
+.action{
+  margin-top: -45px;
+}
+
+.action label 
+{ display: block; 
+  box-sizing: border-box;
+  width: 0; 
+  height: 20px; 
+  border-color: transparent transparent transparent goldenrod;
+  transition: 100ms all ease;
+  cursor: pointer; 
+  border-style: double;
+  border-width: 0px 0 0px 20px;
+    } 
+.action input[type="checkbox"] {
+   visibility: hidden; } 
+
+.action input[type="checkbox"]:checked + label 
+{ 
+  border-style: solid;
+   border-width: 10px 0 10px 18px; } 

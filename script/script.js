@@ -10,10 +10,15 @@ var Mapheight =470;
 var svgMap;
 var divM;
 var uncerData,barData;
+var extent = [0.0, 10.0]
+var colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
+                     .domain(extent);
+
+     
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    svg = d3.select('#map');
+    // svg = d3.select('#map');
     Promise.all([d3.json('data/map-geo.json')]).then(function(json){
         mapdata = json
     })
@@ -87,7 +92,7 @@ function getCumalativeValues(){
 
 function  drawallCharts()
 {
-    svg.selectAll("*").remove();
+    // svg.selectAll("*").remove();
     getCumalativeValues();
     heatMap();
     pieChart();
@@ -109,6 +114,7 @@ function changebuttuon()
       var t1= (+b.property("value") - 3300) % (+b.property("max") - 3300)
       last_time=formatDT(new Date(t1*1000));
       current_time=formatDT(new Date(t*1000));
+      document.getElementById("date").value=current_time;
       drawallCharts();
       if (t == 0) { t = +b.property("min"); }
       b.property("value", t);
@@ -130,6 +136,7 @@ function changeslider()
       var t1= (+b.property("value") - 3300) % (+b.property("max") - 3300)
       last_time=formatDT(new Date(t1*1000));
       current_time=formatDT(new Date(t*1000));
+      document.getElementById("date").value=current_time;
       drawallCharts();
       if (t == 0) { t = +b.property("max");
       clearInterval (myTimer); }
@@ -154,7 +161,7 @@ function changeslider()
   }
   
  function heatMap()
- {
+ {  
      divM = d3.select("body").append("div")
      .attr("class", "tooltip-donut")
      .style("opacity", 0);
@@ -167,11 +174,9 @@ function changeslider()
     let path = d3.geoPath()
     .projection(projection);
 
-    var extent = [0.0, 10.0]
-     var colorScale = d3.scaleSequential(d3.interpolateBrBG)
-                     .domain(extent);
+   
     svgMap = d3.select('#worldMap')
-    .attr("transform", "translate(850,-800)")
+    .attr("transform", "translate(50,-280)")
     .attr('width', Mapwidth)
     .attr('height', Mapheight);
 
@@ -313,24 +318,31 @@ function changeslider()
  function innovativeChart()
  {
  // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
-  // svg.selectAll("*").remove();
-  var isvg = svg.append("g")
-                .attr("id", "iplot");
+ var iheight=150;
+ var iwidth=600;
+ var imargin={top: 20, right: 20, bottom: 20, left: 20};
 
-  var iheight=300;
-  var iwidth=600;
-  var imargin={top: 20, right: 20, bottom: 20, left: 20};
+ var avg_val=[];
+ var loc=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
 
-  var avg_val=[];
-  var loc=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
+  isvg = d3.select('#imap')
+  .attr("transform", "translate(700,0)")
+   .attr('width', iwidth)
+  .attr('height', iheight*2);
 
+  // var isvg = insvg.append("g")
+  //                 .attr("id", "iplot");
+
+  isvg.selectAll("*").remove()
+ 
+ 
   xScale = d3.scalePoint()
             .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19])
             .range([imargin.left,iwidth-imargin.right]);
   yScale = d3.scaleLinear()
             .domain([10, 0])
             // .range([iheight-imargin.top, 0]);
-            .range([iheight-imargin.bottom-100, 0]);
+            .range([iheight, 0]);
 
   const xaxis = d3.axisBottom(xScale);
   const yaxis = d3.axisLeft(yScale);
@@ -347,35 +359,18 @@ function changeslider()
   .attr("transform", "translate("+imargin.left+","+ (iheight-imargin.bottom)+ ")")
   .call(yaxis)
   
-  isvg.append("g").attr("id", "bars");
-
-  var bars = isvg.select("#bars")
-  .selectAll("rect")
-  .data(barData);
-  // .data(final_data);
-
-bars.enter().append("rect")
-.attr("class", "bar")
-.attr("width", imargin.left)
-.attr("x", function(d, i) {
-  return xScale(i+1) - (imargin.left/2)
-// return xScale(d.location) - (imargin.left/2);
-})
-.attr("y", iheight)
-.attr("height", function(d) {
-  return yScale(d);
-// return yScale(d.sewer_and_water);
-});
+  
 
     //Amy:
     d3.selectAll(".checkbox").on("change",update);
 
     function average(grp)
-    {
+    { isvg.append("g").attr("id", "bars");
       velScale=d3.scaleLinear().domain([0,10]).range([1000,10]);
      l=grp.length;
      avg_val=[];
-
+     isvg.selectAll("circle").remove()
+     isvg.selectAll("bars").remove()
      var circle = isvg.selectAll("circle").data(loc).enter()
      .append("circle")
      .attr("r", 10);
@@ -403,29 +398,51 @@ bars.enter().append("rect")
      
       avg_val.push((val/l))
       }
-      circle
-        .each(function transition(d){
-          d3.select(this)
-      .attr("cy", (iheight-imargin.bottom-10))
-      .attr("cx",  xScale(loc[d-1]) )
-      .transition()
-  
-      .duration(function (params) {
-                return velScale(avg_val[d]) 
-      })
-  
-      .attr("cy", (iheight-imargin.bottom-100))
-      .attr("cx", xScale(loc[d-1]))
-      .transition()
-      .duration( velScale(avg_val[d]))
-      .attr("cy", iheight-imargin.bottom-10)
-      .attr("cx", xScale(loc[d-1]))
-      .on("end",transition);
-     })
-    }
+
+      
+
+  var bars = isvg.select("#bars")
+  .selectAll("rect")
+  .data(barData);
+
+bars.enter().append("rect")
+.attr("class", "bar")
+.attr("width", imargin.left)
+.attr("x", function(d, i) {
+  return xScale(i+1) - (imargin.left/2)
+})
+.attr("y", iheight)
+.attr("height", function(d) {
+  return yScale(d);
+});
+
+    circle
+      .each(function transition(d){
+        d3.select(this)
+    .attr("cy", (iheight-imargin.bottom-10))
+    .attr("cx",  xScale(d) )
+    .style('fill', d => {
+
+      return colorScale(avg_val[d-1]);
+  })
+  .attr("stroke","black")
+    .transition()
+
+    .duration(function (params) {
+     
+              return velScale(avg_val[d-1]) 
+    })
+    .attr("cy", (iheight-imargin.bottom-100))
+    .attr("cx", xScale(d))
+    .transition()
+    .duration( velScale(avg_val[d-1]))
+    .attr("cy", iheight-imargin.bottom-10)
+    .attr("cx", xScale(d))
+    .on("end",transition);
+    })
+  }
 
     function update(){
-
       // For each check box:
       var grp=[]
       d3.selectAll(".checkbox").each(function(d){
