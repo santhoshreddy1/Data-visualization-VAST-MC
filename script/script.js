@@ -351,17 +351,20 @@ function changeslider()
 
   var bars = isvg.select("#bars")
   .selectAll("rect")
-  .data(final_data);
+  .data(barData);
+  // .data(final_data);
 
 bars.enter().append("rect")
 .attr("class", "bar")
 .attr("width", imargin.left)
 .attr("x", function(d, i) {
-return xScale(d.location) - (imargin.left/2);
+  return xScale(i+1) - (imargin.left/2)
+// return xScale(d.location) - (imargin.left/2);
 })
 .attr("y", iheight)
 .attr("height", function(d) {
-return yScale(d.sewer_and_water);
+  return yScale(d);
+// return yScale(d.sewer_and_water);
 });
 
     //Amy:
