@@ -190,7 +190,8 @@ function changeslider()
 
     let g = svgMap.append('g');
     updateMapData();
-
+    console.log("------------")
+     console.log(mapdata[0].features);
      svgMap.selectAll("path")
         .data(mapdata[0].features)
         .enter()
@@ -207,35 +208,46 @@ function changeslider()
             })
         .attr("title", function(d,i) {
         return d.properties.Nbrhood;
-      })
-       .on('mouseover', function(d,i) {
-         d3.select(this).transition()
-               .duration('50')
-               .style('stroke','cyan')
-               .attr('opacity', '.85')
-               .attr('stroke-width','4');
-        divM.transition()
-               .duration(50)
-               .style("opacity", 1);
-         divM.html(d.properties.Nbrhood+i)
-               .style("left", (d3.event.pageX + 10) + "px")
-               .style("top", (d3.event.pageY - 15) + "px");
-               if(d.properties.Nbrhood ==="Wilson Forest"){
+      });
 
-               }
+     svgMap.selectAll(".parish-labels")
+        .data(mapdata[0].features)
+        .enter()
+        .append("text")
+        .attr("transform", function(d)  { return "translate(" + path.centroid(d) + ")"; })
+        .attr("dy", ".35em")
+        .style("fill", "black")
+        .attr("text-anchor", "middle")
+        .text(function(d) { return d.properties.Id; });
 
-    })
-    .on('mouseout', function(d,i) {
-        d3.select(this).transition()
-               .duration('50')
-               .style('stroke','black')
-               .attr('opacity', '1')
-               .attr('stroke-width','1');
-        divM.transition()
-              .duration('50')
-              .style("opacity", 0);
-
-    });
+//       .on('mouseover', function(d,i) {
+//         d3.select(this).transition()
+//               .duration('50')
+//               .style('stroke','cyan')
+//               .attr('opacity', '.85')
+//               .attr('stroke-width','4');
+//        divM.transition()
+//               .duration(50)
+//               .style("opacity", 1);
+//         divM.html(d.properties.Nbrhood)
+//               .style("left", (d3.event.pageX + 10) + "px")
+//               .style("top", (d3.event.pageY - 15) + "px");
+//               if(d.properties.Nbrhood ==="Wilson Forest"){
+//                console.log(d.properties)
+//               }
+//           console.log('mouseover on ' + d.properties.Nbrhood);
+//    })
+//    .on('mouseout', function(d,i) {
+//        d3.select(this).transition()
+//               .duration('50')
+//               .style('stroke','black')
+//               .attr('opacity', '1')
+//               .attr('stroke-width','1');
+//        divM.transition()
+//              .duration('50')
+//              .style("opacity", 0);
+//      console.log('mouseout on ' + d.properties.Nbrhood);
+//    });
 
 
     var lineInnerHeight = 430;
