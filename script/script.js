@@ -19,8 +19,6 @@ var colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
                      .domain(extent);
 
 
-
-
 document.addEventListener('DOMContentLoaded', function() {
     // svg = d3.select('#map');
     Promise.all([d3.json('data/map-geo.json')]).then(function(json){
@@ -86,7 +84,6 @@ function getCumalativeValues(){
                 final_data[k].shake_intensity/=total;
                 final_data[k].roads_and_bridges/=total;
                 final_data[k].buildings/=total;
-
         }
         final_data[k].location = k;
     }
@@ -100,7 +97,7 @@ function  drawallCharts()
     getCumalativeValues();
     heatMap();
     pieChart();
-    //lineChart();
+    // lineChart();
     gridChart();
     innovativeChart();
 }
@@ -651,7 +648,7 @@ lsvg.append("text")
  function gridChart()
  {
  // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
-  
+
  updateMapData();
 var gridData = createGrid();
 // I like to log the data to the console for quick debugging
@@ -662,7 +659,6 @@ var grid = d3.select("#grid")
           .attr("height","510px")
           .attr("transform", "translate(-100,-350)")
 
-          
 grid.selectAll("*").remove();
 
 grid.append("rect")
@@ -671,10 +667,9 @@ grid.append("rect")
 .style("fill","#66e045")
 .attr("transform", "translate(-100,290)")
 
-
-grid.append("text").text("Low")
+grid.append("text")
+.text("Low")
 .style("stroke","black")
-.attr("height",500)
 .attr("transform", "translate(13.5,323)")
 
 grid.append("rect")
@@ -699,7 +694,6 @@ grid.append("text")
 .style("stroke","black")
 .attr("transform", "translate(257,323)")
 
-
 var row = grid.selectAll(".row")
 	.data(gridData)
 	.enter()
@@ -715,11 +709,12 @@ var column = row.selectAll(".square")
 	.append("rect")
 	.attr("class","square")
 	.attr("x", function(d) { return d.x ; })
-	.attr("y", function(d) { return d.y ; })
+  .attr("y", function(d) { return d.y ; })
+  .attr("title", function(d){return d.city})
 	.attr("width", function(d) { return d.width; })
 	.attr("height", function(d) { return d.height; })
 	.style("fill", function(d){
-    return d.color 
+    return d.color
   })
 	.style("stroke", "#222")
 	.style("cursor", "pointer")
@@ -746,19 +741,24 @@ var column = row.selectAll(".square")
 	//    if ((d.click)%4 == 3 ) { d3.select(this).style("fill","#838690"); }
 	// });
 
-	// var text = row.selectAll(".square")
-	// .data(function(d) { return d; })
-	// .enter()
-	// .append("text").text("Hello How are you?")
-	// .attr("class","square")
-	// .attr("x", function(d) { return d.x ; })
-	// .attr("y", function(d) { return d.y ; })
-	// .style("fill", function(d){return d.color })
-	// .style("stroke", "#222")
-
-	// var rect = grid.append("rect").attr("x",100).attr("y",100).attr("width",100).attr("height",100);
-	// var text = rect.append("text").text("Hi there").attr("stroke", "red").attr("stroke-width",5);
- 
+var currentCity = 1 ; 
+var x = 25; 
+var y  = 35; 
+var gap = 60 ; 
+for(let i = 0 ; i<4 ; i++)
+{
+  x = 25 ; 
+  for(let j = 0 ; j<5 ; j++)
+  {
+    grid.append("text")
+    .text(currentCity)
+    .style("stroke","black")
+    .attr("transform", "translate(" + x + "," + y + ")")
+    currentCity++; 
+    x += gap ; 
+  }
+  y += gap ; 
+}
 }
 
  function innovativeChart()
