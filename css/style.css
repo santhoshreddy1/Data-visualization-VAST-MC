@@ -7,11 +7,10 @@
     margin-top: 10px;
   }
 
-
   rect .bars {
     fill: blue;
-
   }
+
   div.tooltip-donut {
      position: absolute;
      text-align: center;
@@ -76,7 +75,7 @@ input[type=range]:focus::-moz-range-track {
     }
 .action input[type="checkbox"] {
    visibility: hidden; }
-
+   
 .action input[type="checkbox"]:checked + label
 {
   border-style: solid;
