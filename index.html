@@ -11,21 +11,35 @@
     <!-- <script src = 'script/scriptSajjan.js'></script> -->
   </head>
   <body>
+   <div style="margin:auto;">
     <div id="slider">
-        <input type='range' min='1586156400' max='1586588400' step='300' value='1586156400' id='rangeSlider' onclick="changeslider()"/> 
-      <input type="button" id="action" onclick="changebuttuon()" value="Play"></input>
-      </div>
-    
-      <div>
+      <input style="box-sizing: border-box;" type='range' min='1586156400' max='1586588400' step='300' value='1586156400' id='rangeSlider' onclick="changeslider()"/>
+      <output for="rangeSlider" id="date" style="color: goldenrod;">2020-04-06 00:00:00</output>
+    </div>
+      <div class="action">
+        <input type="checkbox" value="Play" id="action" name="check" onclick="changebuttuon()"/>
+        <label for="action">
+        </label>
+    </div>
+
+    </div>
+      <svg id="imap"></svg>
+      <div style="margin-left: 700px;">
         <input type="checkbox" class="checkbox" value="buildings" checked><label>Buildings</label>
         <input type="checkbox" class="checkbox" value="medical" checked><label>Medical</label>
         <input type="checkbox" class="checkbox" value="roads_and_bridges" checked><label>Roads and Bridges</label>
         <input type="checkbox" class="checkbox" value="power" checked><label>Power</label>
         <input type="checkbox" class="checkbox" value="sewer_and_water" checked><label>Sewer and Water</label>
       </div>
+<<<<<<< HEAD
     <svg id='map'></svg>
    <svg id="worldMap" ></svg>
    <svg id="grid"></svg>
+=======
+
+
+    <svg id="worldMap" ></svg>
+    <svg id="linechart"></svg>
+>>>>>>> 820e827698e1a0e7de26d91794a9d4e54061aada
   </body>
 </html>
-
