@@ -12,7 +12,7 @@ var svgMap;
 var divM;
 var dictt={}
 var uncerData,barData;
-var colors = ["#ffda97", "#e59400", "#a52a2a", "#000000"];
+var colors = ["#ffff94", "#e59400", "#a52a2a", "#000000"];
 var IntensityArray = ["Low", "Medium", "High"];
 var extent = [0.0, 10.0]
 var colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
