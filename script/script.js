@@ -12,13 +12,12 @@ var svgMap;
 var divM;
 var dictt={}
 var uncerData,barData;
-var colors = ["#66e045", "#0000ff", "#ff0000", "#000000"];
+var colors = ["#ffda97", "#e59400", "#a52a2a", "#000000"];
 var IntensityArray = ["Low", "Medium", "High"];
 var extent = [0.0, 10.0]
 var colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
                      .domain(extent);
-
-var cnt = 0 ; 
+var cnt = 0 ;
 
 document.addEventListener('DOMContentLoaded', function() {
     // svg = d3.select('#map');
@@ -78,7 +77,7 @@ function getCumalativeValues(){
     for(let k=0;k<20;k++){
         if(final_data[k].count>0){
                 let total = final_data[k].count;
-                final_data[k].app_responses/=total;
+                // final_data[k].app_responses/=total;
                 final_data[k].sewer_and_water/=total;
                 final_data[k].power/=total;
                 final_data[k].medical/=total;
@@ -593,6 +592,7 @@ lsvg.append("text")
 
 // create grid.
  function createGrid() {
+
 	var data = new Array();
 	var xpos = 1; //starting xpos and ypos at 1 so the stroke will show when we make the grid below
 	var ypos = 1;
@@ -601,30 +601,39 @@ lsvg.append("text")
 	var click = 0;
   var cityNumber = 0;
   var allKeys = []; 
-  for(let i = 0 ; i<=18 ; i++)
+  var maxi = 0 ; 
+  for(let i = 0 ; i<final_data.length ; i++)
   {
-  allKeys.push(mapdata[0].features[cityNumber].properties.newkey)
-  cityNumber += 1 ; 
+     if(final_data[i].app_responses > maxi)
+         maxi = final_data[i].app_responses; 
   }
-  cityNumber = 0 ; 
-  if(mapdata[0].features){
-	// iterate for rows	
-	for (var row = 0; row < 4; row++) {
-		data.push( new Array() );
-		// iterate for cells/columns inside rows
-		for (var column = 0; column < 5; column++) {
-      var index  = 3; 
-      if(allKeys[cityNumber] > 5)
-        index = 2; 
-      else if(allKeys[cityNumber] < 3)
-        index = 0;
-      else if(allKeys[cityNumber] >= 3 && allKeys[cityNumber] <= 5)
-        index = 1 ; 
 
-// create count 
-var countArray = [] ; 
-for(let i = 0 ; i<6  ; i++)
-  countArray.push(getAttributesCount(20));
+  var range = maxi/3;
+
+  var low = range; 
+  var mid = low + range; 
+
+  var responseArray  = []
+
+  for(let i = 1 ; i<=19 ; i++)
+  responseArray.push(final_data[i].app_responses);
+
+  cityNumber = 0 ;
+
+  if(mapdata[0].features){
+
+  for (var row = 0; row < 4; row++) 
+  {
+    data.push( new Array());
+    for (var column = 0; column < 5; column++)
+    {
+      var index  = 3;
+      if(responseArray[cityNumber] <= low)
+        index = 0;
+      else if(responseArray[cityNumber] > low && responseArray[cityNumber] <= mid)
+        index = 1 ;
+      else if(responseArray[cityNumber] > mid)
+        index = 2;
 
 			data[row].push({
 				x: xpos,
@@ -635,13 +644,13 @@ for(let i = 0 ; i<6  ; i++)
 				city: cityNumber+1,
 				color: colors[index],
         intensity:index,
-        countArray:countArray
+        appResponse: responseArray[cityNumber],
 			})
       // increment the x position. I.e. move it over by 50 (width variable)
-      cityNumber++;
+      if(cityNumber < 19)
+       cityNumber++;
       
       xpos += width;
-    
 		}
 		// reset the x position after a row is complete
 		xpos = 1;
@@ -652,16 +661,18 @@ for(let i = 0 ; i<6  ; i++)
 	return data;
 }
 
-function getAttributesCount(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
-
  function gridChart()
  {
+   console.log("Inside Grid Chart");
+   console.log(final_data);
+
  // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
-//  tooltip.selectAll("*").remove();
- updateMapData();
+
+d3.selectAll("#tool").remove();
+updateMapData();
+
 var gridData = createGrid();
+
 var grid = d3.select("#grid")
 	        .attr("width","510px")
           .attr("height","510px")
@@ -672,7 +683,7 @@ grid.selectAll("*").remove();
 grid.append("rect")
 .attr("width",156)
 .attr("height",56)
-.style("fill","#66e045")
+.style("fill",colors[0])
 .attr("transform", "translate(-100,290)")
 
 grid.append("text")
@@ -683,7 +694,7 @@ grid.append("text")
 grid.append("rect")
 .attr("width",60)
 .attr("height",56)
-.style("fill","#0000ff")
+.style("fill",colors[1])
 .attr("transform", "translate(120,290)")
 
 grid.append("text")
@@ -694,7 +705,7 @@ grid.append("text")
 grid.append("rect")
 .attr("width",60)
 .attr("height",56)
-.style("fill","#ff0000")
+.style("fill",colors[2])
 .attr("transform", "translate(245,290)")
 
 grid.append("text")
@@ -708,8 +719,7 @@ var row = grid.selectAll(".row")
 	.append("g")
 	.attr("class", "row");
 
-var tooltip = d3.select("body").append("div").attr("class", "tooltip-donut").style("opacity", 0);
-
+var tooltip = d3.select("body").append("div").attr("class", "tooltip-donut").style("opacity", 0).attr("id","tool");
 
 var column = row.selectAll(".square")
 	.data(function(d) { return d; })
@@ -735,21 +745,20 @@ var column = row.selectAll(".square")
       if(d.city != 20)
       {
 		tooltip.style("opacity", 1).transition().duration(50);
-    var title = "City: " + d.city + "     " + "Intensity: " + IntensityArray[d.intensity] + "<br>" + "Sewer and water: " + d.countArray[0] + "     " + "Buildings: " + d.countArray[1] + "<br>Roads and Bridges: " + d.countArray[2] + "    " +  "Power:  " + d.countArray[3] + "<br> Medical:   " + d.countArray[4];
+    var title = "Location: " + d.city + "<br>" +  "Response: " + d.appResponse;
     tooltip.html(title).style("top", (d3.event.pageY - 15) + "px").style("left", (d3.event.pageX + 10) + "px");
-    // tooltip.selectAll("div").remove();
       }
   }).on('mouseout', function(d,i)
    {
-    if(d.city != 20){
+    if(d.city != 20)
+    {
      d3.select(this).attr('class','countrymap')
      if(d.city != 20)
      tooltip.style("opacity", 0).transition().duration('50');
-    // tooltip.selectAll("div").remove();
     }
    })
 
-var currentCity = 1 ; 
+var currentCity = 1; 
 var x = 25; 
 var y  = 35; 
 var gap = 60 ; 
@@ -837,7 +846,6 @@ for(let i = 0 ; i<4 ; i++)
       for(i=0;i<l;i++)
       {
         val+=final_data[j+1][grp[i]];
-
         if(final_data[j][grp[i]]<uncerData[j][grp[i]+"_low"])
         {
           uncertval+=(uncerData[j][grp[i]+"_low"]-final_data[j][grp[i]]);
