@@ -7,17 +7,18 @@ var last_time="2020-04-06 00:00:00"
 var final_data;
 var cumulative;
 var Mapwidth = 550;
-var Mapheight =470;
+var Mapheight = 470;
 var svgMap;
 var divM;
 var dictt={}
 var uncerData,barData;
+var colors = ["#66e045", "#0000ff", "#ff0000", "#000000"];
+var IntensityArray = ["Low", "Medium", "High"];
 var extent = [0.0, 10.0]
 var colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
                      .domain(extent);
 
-
-
+var cnt = 0 ; 
 
 document.addEventListener('DOMContentLoaded', function() {
     // svg = d3.select('#map');
@@ -84,7 +85,6 @@ function getCumalativeValues(){
                 final_data[k].shake_intensity/=total;
                 final_data[k].roads_and_bridges/=total;
                 final_data[k].buildings/=total;
-
         }
         final_data[k].location = k;
     }
@@ -98,7 +98,7 @@ function  drawallCharts()
     getCumalativeValues();
     heatMap();
     pieChart();
-    //lineChart();
+    // lineChart();
     gridChart();
     innovativeChart();
 }
@@ -176,13 +176,13 @@ function changeslider()
     let path = d3.geoPath()
     .projection(projection);
 
-
     svgMap = d3.select('#worldMap')
     .attr("transform", "translate(50,-280)")
     .attr('width', Mapwidth)
     .attr('height', Mapheight);
 
     svgMap.selectAll("*").remove();
+
     svgMap.append('rect')
     .style("fill","white")
     .attr('width', Mapwidth)
@@ -249,7 +249,6 @@ function changeslider()
 //      console.log('mouseout on ' + d.properties.Nbrhood);
 //    });
 
-
     var lineInnerHeight = 430;
 
     const defs = svgMap.append("defs");
@@ -297,7 +296,6 @@ function changeslider()
 }
 
  function updateMapData(){
-
     let avgsum = new Array();
 
     for(let i=1;i<=19;i++){
@@ -308,7 +306,6 @@ function changeslider()
       if(!Number.isNaN(final_data[i].medical)){count+=1;sum+=final_data[i].medical}
       if(!Number.isNaN(final_data[i].buildings)){count+=1;sum+=final_data[i].buildings}
       if(!Number.isNaN(final_data[i].roads_and_bridges)){count+=1;sum+=final_data[i].roads_and_bridges}
-
         avgsum.push(sum/count);
     }
 
@@ -316,6 +313,8 @@ function changeslider()
         let newval = avgsum[i-1];
         mapdata[0].features[i-1].properties['newkey'] = newval;
     }
+    console.log("mapdata = ")
+    console.log(mapdata[0].features);
  }
  function pieChart()
  {
@@ -588,14 +587,188 @@ lsvg.append("text")
                 .style("opacity", 0);
             focus.style("opacity",0);
           }
-
-
-
  }
+
+
+
+// create grid.
+ function createGrid() {
+	var data = new Array();
+	var xpos = 1; //starting xpos and ypos at 1 so the stroke will show when we make the grid below
+	var ypos = 1;
+	var width = 60;
+	var height = 60;
+	var click = 0;
+  var cityNumber = 0;
+  var allKeys = []; 
+  for(let i = 0 ; i<=18 ; i++)
+  {
+  allKeys.push(mapdata[0].features[cityNumber].properties.newkey)
+  cityNumber += 1 ; 
+  }
+  cityNumber = 0 ; 
+  if(mapdata[0].features){
+	// iterate for rows	
+	for (var row = 0; row < 4; row++) {
+		data.push( new Array() );
+		// iterate for cells/columns inside rows
+		for (var column = 0; column < 5; column++) {
+      var index  = 3; 
+      if(allKeys[cityNumber] > 5)
+        index = 2; 
+      else if(allKeys[cityNumber] < 3)
+        index = 0;
+      else if(allKeys[cityNumber] >= 3 && allKeys[cityNumber] <= 5)
+        index = 1 ; 
+
+// create count 
+var countArray = [] ; 
+for(let i = 0 ; i<6  ; i++)
+  countArray.push(getAttributesCount(20));
+
+			data[row].push({
+				x: xpos,
+				y: ypos,
+				width: width,
+				height: height,
+				click: click,
+				city: cityNumber+1,
+				color: colors[index],
+        intensity:index,
+        countArray:countArray
+			})
+      // increment the x position. I.e. move it over by 50 (width variable)
+      cityNumber++;
+      
+      xpos += width;
+    
+		}
+		// reset the x position after a row is complete
+		xpos = 1;
+		// increment the y position for the next row. Move it down 50 (height variable)
+		ypos += height;	
+  }
+}
+	return data;
+}
+
+function getAttributesCount(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
  function gridChart()
  {
  // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
- }
+//  tooltip.selectAll("*").remove();
+ updateMapData();
+var gridData = createGrid();
+var grid = d3.select("#grid")
+	        .attr("width","510px")
+          .attr("height","510px")
+          .attr("transform", "translate(190,-150)")
+
+grid.selectAll("*").remove();
+
+grid.append("rect")
+.attr("width",156)
+.attr("height",56)
+.style("fill","#66e045")
+.attr("transform", "translate(-100,290)")
+
+grid.append("text")
+.text("Low")
+.style("stroke","black")
+.attr("transform", "translate(13.5,323)")
+
+grid.append("rect")
+.attr("width",60)
+.attr("height",56)
+.style("fill","#0000ff")
+.attr("transform", "translate(120,290)")
+
+grid.append("text")
+.text("Medium")
+.style("stroke","black")
+.attr("transform", "translate(123.5,323)")
+
+grid.append("rect")
+.attr("width",60)
+.attr("height",56)
+.style("fill","#ff0000")
+.attr("transform", "translate(245,290)")
+
+grid.append("text")
+.text("High")
+.style("stroke","black")
+.attr("transform", "translate(257,323)")
+
+var row = grid.selectAll(".row")
+	.data(gridData)
+	.enter()
+	.append("g")
+	.attr("class", "row");
+
+var tooltip = d3.select("body").append("div").attr("class", "tooltip-donut").style("opacity", 0);
+
+
+var column = row.selectAll(".square")
+	.data(function(d) { return d; })
+	.enter()
+	.append("rect")
+	.attr("class","square")
+	.attr("x", function(d) { return d.x ; })
+  .attr("y", function(d) { return d.y ; })
+  .attr("title", function(d){return d.city})
+	.attr("width", function(d) { return d.width;})
+	.attr("height", function(d) { return d.height; })
+	.style("fill", function(d){
+    return d.color
+  })
+	.style("stroke", "#222")
+	.style("cursor", "pointer")
+    .on('mouseover', function(d,i) 
+    {
+      d3.select(this).attr('class','hoverCountryMap');
+    })
+    .on('mousemove',function(d)
+    {
+      if(d.city != 20)
+      {
+		tooltip.style("opacity", 1).transition().duration(50);
+    var title = "City: " + d.city + "     " + "Intensity: " + IntensityArray[d.intensity] + "<br>" + "Sewer and water: " + d.countArray[0] + "     " + "Buildings: " + d.countArray[1] + "<br>Roads and Bridges: " + d.countArray[2] + "    " +  "Power:  " + d.countArray[3] + "<br> Medical:   " + d.countArray[4];
+    tooltip.html(title).style("top", (d3.event.pageY - 15) + "px").style("left", (d3.event.pageX + 10) + "px");
+    // tooltip.selectAll("div").remove();
+      }
+  }).on('mouseout', function(d,i)
+   {
+    if(d.city != 20){
+     d3.select(this).attr('class','countrymap')
+     if(d.city != 20)
+     tooltip.style("opacity", 0).transition().duration('50');
+    // tooltip.selectAll("div").remove();
+    }
+   })
+
+var currentCity = 1 ; 
+var x = 25; 
+var y  = 35; 
+var gap = 60 ; 
+for(let i = 0 ; i<4 ; i++)
+{
+  x = 25 ; 
+  for(let j = 0 ; j<5 ; j++)
+  {
+    grid.append("text")
+    .text(currentCity)
+    .style("stroke","black")
+    .attr("transform", "translate(" + x + "," + y + ")")
+    currentCity++; 
+    x += gap ; 
+  }
+  y += gap ; 
+}
+}
+
  function innovativeChart()
  {
  // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
@@ -629,7 +802,7 @@ lsvg.append("text")
   const yaxis = d3.axisLeft(yScale);
 
   update();
-
+  
   isvg.append("g")
   .attr("class", "xAxis")
   .attr("transform", "translate("+0+","+ (iheight-imargin.bottom)+ ")")
