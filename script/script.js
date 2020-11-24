@@ -18,6 +18,7 @@ var extent = [0.0, 10.0]
 var colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
                      .domain(extent);
 
+var cnt = 0 ; 
 
 document.addEventListener('DOMContentLoaded', function() {
     // svg = d3.select('#map');
@@ -586,10 +587,9 @@ lsvg.append("text")
                 .style("opacity", 0);
             focus.style("opacity",0);
           }
-
-
-
  }
+
+
 
 // create grid.
  function createGrid() {
@@ -601,7 +601,8 @@ lsvg.append("text")
 	var click = 0;
   var cityNumber = 0;
   var allKeys = []; 
-  for(let i = 0 ; i<=18 ; i++){
+  for(let i = 0 ; i<=18 ; i++)
+  {
   allKeys.push(mapdata[0].features[cityNumber].properties.newkey)
   cityNumber += 1 ; 
   }
@@ -620,6 +621,11 @@ lsvg.append("text")
       else if(allKeys[cityNumber] >= 3 && allKeys[cityNumber] <= 5)
         index = 1 ; 
 
+// create count 
+var countArray = [] ; 
+for(let i = 0 ; i<6  ; i++)
+  countArray.push(getAttributesCount(20));
+
 			data[row].push({
 				x: xpos,
 				y: ypos,
@@ -628,7 +634,8 @@ lsvg.append("text")
 				click: click,
 				city: cityNumber+1,
 				color: colors[index],
-				intensity:index,
+        intensity:index,
+        countArray:countArray
 			})
       // increment the x position. I.e. move it over by 50 (width variable)
       cityNumber++;
@@ -645,19 +652,20 @@ lsvg.append("text")
 	return data;
 }
 
+function getAttributesCount(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
  function gridChart()
  {
  // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
-
+//  tooltip.selectAll("*").remove();
  updateMapData();
 var gridData = createGrid();
-// I like to log the data to the console for quick debugging
-// console.log(gridData);
-// svgMap.selectAll("*").remove();
 var grid = d3.select("#grid")
 	        .attr("width","510px")
           .attr("height","510px")
-          .attr("transform", "translate(-100,-350)")
+          .attr("transform", "translate(190,-150)")
 
 grid.selectAll("*").remove();
 
@@ -701,7 +709,7 @@ var row = grid.selectAll(".row")
 	.attr("class", "row");
 
 var tooltip = d3.select("body").append("div").attr("class", "tooltip-donut").style("opacity", 0);
-tooltip.selectAll("*").remove();
+
 
 var column = row.selectAll(".square")
 	.data(function(d) { return d; })
@@ -711,7 +719,7 @@ var column = row.selectAll(".square")
 	.attr("x", function(d) { return d.x ; })
   .attr("y", function(d) { return d.y ; })
   .attr("title", function(d){return d.city})
-	.attr("width", function(d) { return d.width; })
+	.attr("width", function(d) { return d.width;})
 	.attr("height", function(d) { return d.height; })
 	.style("fill", function(d){
     return d.color
@@ -724,22 +732,22 @@ var column = row.selectAll(".square")
     })
     .on('mousemove',function(d)
     {
+      if(d.city != 20)
+      {
 		tooltip.style("opacity", 1).transition().duration(50);
-    var title = "City: " + d.city + "<br>" + "Intensity: " + IntensityArray[d.intensity] + "<br>";
+    var title = "City: " + d.city + "     " + "Intensity: " + IntensityArray[d.intensity] + "<br>" + "Sewer and water: " + d.countArray[0] + "     " + "Buildings: " + d.countArray[1] + "<br>Roads and Bridges: " + d.countArray[2] + "    " +  "Power:  " + d.countArray[3] + "<br> Medical:   " + d.countArray[4];
     tooltip.html(title).style("top", (d3.event.pageY - 15) + "px").style("left", (d3.event.pageX + 10) + "px");
-   }).on('mouseout', function(d,i)
+    // tooltip.selectAll("div").remove();
+      }
+  }).on('mouseout', function(d,i)
    {
+    if(d.city != 20){
      d3.select(this).attr('class','countrymap')
+     if(d.city != 20)
      tooltip.style("opacity", 0).transition().duration('50');
-      tooltip.selectAll("*").remove();
+    // tooltip.selectAll("div").remove();
+    }
    })
-	// .on('click', function(d) {
-    //    d.click ++;
-    //    if ((d.click)%4 == 0 ) { d3.select(this).style("fill","#fff"); }
-	//    if ((d.click)%4 == 1 ) { d3.select(this).style("fill","#2C93E8"); }
-	//    if ((d.click)%4 == 2 ) { d3.select(this).style("fill","#F56C4E"); }
-	//    if ((d.click)%4 == 3 ) { d3.select(this).style("fill","#838690"); }
-	// });
 
 var currentCity = 1 ; 
 var x = 25; 
