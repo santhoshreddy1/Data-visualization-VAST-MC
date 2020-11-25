@@ -12,8 +12,8 @@
 
   rect .bars {
     fill: blue;
-
   }
+
   div.tooltip-donut {
      position: absolute;
      text-align: center;
