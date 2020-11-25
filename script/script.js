@@ -18,6 +18,7 @@ var IntensityArray = ["Low", "Medium", "High"];
 var extent = [0.0, 10.0]
 var colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
                      .domain(extent);
+var border=1; var bordercolor='black';
 var cnt = 0 ;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -775,7 +776,7 @@ for(let i = 0 ; i<4 ; i++)
 
   isvg = d3.select('#imap')
   .attr("transform", "translate(700,0)")
-   .attr('width', iwidth)
+  .attr('width', iwidth)
   .attr('height', iheight*2);
 
   // var isvg = insvg.append("g")
@@ -783,6 +784,17 @@ for(let i = 0 ; i<4 ; i++)
 
   isvg.selectAll("*").remove()
 
+  // Add border to isvg
+  isvg.append("rect")
+      .attr("x", imargin.left)
+      .attr("y", imargin.top)
+      .attr("rx", '0.25em').attr("ry", '0.25em')
+      .attr("height", (iheight - imargin.top)*2)
+      .attr("width", iwidth-imargin.right-5)
+      .style("stroke", bordercolor)
+      .style("stroke-linecap", "round")
+      .style("fill", "none")
+      .style("stroke-width", border);
 
   xScale = d3.scalePoint()
             .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19])
@@ -807,6 +819,12 @@ for(let i = 0 ; i<4 ; i++)
   .attr("transform", "translate("+imargin.left+","+ (iheight-imargin.bottom)+ ")")
   .call(yaxis)
 
+  isvg.select('.xAxis').selectAll(".tick")
+    .each(function (d, i) {
+        if ( d == 0 ) {
+            this.remove();
+        }
+    });
 
 
     //Amy:
