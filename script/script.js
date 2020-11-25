@@ -61,7 +61,7 @@ function getCumalativeValues(){
                 }
             }
     line_data=cumulative_map;
-    //console.log(current_time,line_data);
+    console.log(current_time,line_data);
     });
   // here we finally compute a cumulative sum of all values per city
   // index of final data array ie 1,2,3...19 gives the cumulative sum per attribute like app response
@@ -192,8 +192,8 @@ function changeslider()
 
     let g = svgMap.append('g');
     updateMapData();
-    console.log("------------")
-     console.log(mapdata[0].features);
+    ////console.log("------------")
+     ////console.log(mapdata[0].features);
      svgMap.selectAll("path")
         .data(mapdata[0].features)
         .enter()
@@ -235,9 +235,9 @@ function changeslider()
 //               .style("left", (d3.event.pageX + 10) + "px")
 //               .style("top", (d3.event.pageY - 15) + "px");
 //               if(d.properties.Nbrhood ==="Wilson Forest"){
-//                console.log(d.properties)
+//                ////console.log(d.properties)
 //               }
-//           console.log('mouseover on ' + d.properties.Nbrhood);
+//           ////console.log('mouseover on ' + d.properties.Nbrhood);
 //    })
 //    .on('mouseout', function(d,i) {
 //        d3.select(this).transition()
@@ -248,7 +248,7 @@ function changeslider()
 //        divM.transition()
 //              .duration('50')
 //              .style("opacity", 0);
-//      console.log('mouseout on ' + d.properties.Nbrhood);
+//      ////console.log('mouseout on ' + d.properties.Nbrhood);
 //    });
 
     var lineInnerHeight = 430;
@@ -315,8 +315,8 @@ function changeslider()
         let newval = avgsum[i-1];
         mapdata[0].features[i-1].properties['newkey'] = newval;
     }
-    console.log("mapdata = ")
-    console.log(mapdata[0].features);
+    ////console.log("mapdata = ")
+    ////console.log(mapdata[0].features);
  }
  function pieChart()
  {
@@ -328,10 +328,6 @@ function changeslider()
  var lheight=400;
  var lwidth=550;
  var lmargin={top:60,right:30,bottom:20,left: 150};
-
-
-var loc_val=document.getElementById("loc-select").value;
-console.log(loc_val);
 
  var div = d3.select("body").append("div")
       .attr("class", "tooltip-donut")
@@ -359,72 +355,27 @@ console.log(loc_val);
   line_avg.forEach((e)=>!isNaN(e)?avg_copy.push(e):avg_copy.push(0))
 
   avg_copy.sort(function(a, b){return a - b});
-  if(loc_val=='first'){var first = line_avg.indexOf(avg_copy[avg_copy.length-1])+1;}
-  if(loc_val=='second'){var first =line_avg.indexOf(avg_copy[avg_copy.length-2])+1;}
-  if(loc_val=='third'){var first =line_avg.indexOf(avg_copy[avg_copy.length-3])+1;}
+  var first = line_avg.indexOf(avg_copy[avg_copy.length-1])+1;
 
-  console.log(first);
-
-
-  //////////console.log(dictt["2020-04-06 00:00:00"]);
   var top=[]
   top=[first]
-  //////////console.log(first,line_avg,avg_copy);
+  console.log('cc',first,line_avg,avg_copy);
 
   time_map = new Array();
   datamap.forEach(function(data){
           for( k in data){
             time_map.push(data[k].time)
           }})
- // ////////console.log(time_map);
+ // ////////////console.log(time_map);
 
- let time_five=new Array()
 
- var parseTime = d3.timeParse("%m-%d-%Y %H:%M");
-
- let final_time=new Set(time_map);
-
-  time_array = Array.from(final_time);
-
-  k=time_array.indexOf(current_time)
-  if(k< 4){
-    for(var i=0; i<=k;i++){
-          time_five.push(time_array[i]);
-  }
-}
-  else
-  {
-
-  for(var i=0; i<time_array.length;i++){
-
-    if(time_array[i+4]==current_time)
-    {
-    time_five.push(new Date(time_array[i]));
-    time_five.push(new Date(time_array[i+1]));
-    time_five.push(new Date(time_array[i+2]));
-    time_five.push(new Date(time_array[i+3]));
-    time_five.push(new Date(time_array[i+4]));
-    break;
-    }
-  }
-}
-////////console.log('time',time_five);
+////////////console.log('time',time_five);
 var plot_data=[]
-for(var t in top){
-  for(var s in time_five){
-    if(dictt[time_five[s]]){
-      temp=dictt[time_five[s]][top[t]];
-
-      plot_data.push([time_five[s],top[t]+1,temp]);
-    }
-
-  }
-}
-
-
 
 var fin_data=[];
+var time_x=[]
 line_data.forEach(function(d){
+  time_x.push(new Date([d.time]));
   if(d.location==first){
 fin_data.push([new Date(d.time),d.location,'roads_and_bridges',d.roads_and_bridges]);
 fin_data.push([new Date(d.time),d.location,'power',d.power]);
@@ -434,25 +385,26 @@ fin_data.push([new Date(d.time),d.location,'buildings',d.buildings]);
 
 }
 })
-//console.log(fin_data,current_time,first);
+//console.log('loc',first);
+//////console.log(fin_data,current_time,first);
 
-console.log(first,line_avg,avg_copy,fin_data);
+//console.log(first,line_avg,avg_copy,fin_data);
 var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
   .key(function(d) {  return d[2];})
   .entries(fin_data);
 
-//console.log(sumstat);
+//////console.log(sumstat);
 var res = sumstat.map(function(d){ return d.key})
 
   var x = d3.scaleTime()
-      .domain(d3.extent(fin_data, function(d) {return d[0]; }))
+      .domain(d3.extent(time_x, function(d) {return d; }))
       .range([0,lwidth-30]);
 
       lsvg.append("g")
       .attr("transform", `translate(0,${lheight - lmargin.bottom+20})`)
       .attr("class","axisGray")
       .call(d3.axisBottom(x)
-        .ticks(10))
+        .ticks(12))
       .style("stroke","gray")
       .style("opacity",0.6)
       .call(g => g.select(".domain")
@@ -480,7 +432,7 @@ lsvg.append("text")
 ;
 
 
-  ////////console.log(res);
+  ////////////console.log(res);
   var y = d3.scaleLinear()
     .domain([0,10])
     .range([ lheight, 0 ]);
@@ -696,8 +648,8 @@ lsvg.append("text").attr("x", 550).attr("y", 150).text("buildings").style("font-
 
  function gridChart()
  {
-   console.log("Inside Grid Chart");
-   console.log(final_data);
+   ////console.log("Inside Grid Chart");
+   ////console.log(final_data);
 
  // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
 
@@ -894,7 +846,7 @@ for(let i = 0 ; i<4 ; i++)
       avg_val.push((val/l))
       }
 
-  dictt[new Date(current_time)]=avg_val;
+
 
   var bars = isvg.select("#bars")
   .selectAll("rect")
@@ -957,5 +909,5 @@ bars.enter().append("rect")
       average(grp)
     }
 //d3.select("#linechart").selectAll("svg").remove();
-lineChart(avg_val,dictt);
+lineChart(avg_val);
  }
