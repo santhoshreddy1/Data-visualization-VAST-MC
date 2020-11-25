@@ -320,8 +320,89 @@ function changeslider()
     ////console.log(mapdata[0].features);
  }
  function pieChart()
- {
 
+ {
+d3.select("#piechart").selectAll("svg").remove();
+  console.log("Inside Pie Chart");
+  console.log(final_data);
+
+// use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
+var width = 600
+    height = 600
+    margin = 40
+
+// The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+//var radius = Math.min(width, height) / 2 - margin
+var val=[1,1,1,1,1];
+var radius = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
+
+
+// append the svg object to the div called 'my_dataviz'
+var svg = d3.select("#piechart")
+  .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+
+var count1 = 0
+var count2 = 0
+var count3 = 0
+var count4 = 0
+var count5 = 0
+var sum1 = 0
+var sum2 = 0
+var sum3 = 0
+var sum4 = 0
+var sum5 = 0
+console.log("final",final_data);
+for(let i=1;i<=19;i++){
+      if(!Number.isNaN(final_data[i].sewer_and_water)){count1+=1;sum1+=final_data[i].sewer_and_water}
+      if(!Number.isNaN(final_data[i].power)){count2+=1;sum2+=final_data[i].power}
+      if(!Number.isNaN(final_data[i].medical)){count3+=1;sum3+=final_data[i].medical}
+      if(!Number.isNaN(final_data[i].buildings)){count4+=1;sum4+=final_data[i].buildings}
+      if(!Number.isNaN(final_data[i].roads_and_bridges)){count5+=1;sum5+=final_data[i].roads_and_bridges}     
+    }
+  var pie_sum = []
+  pie_sum.push(sum1/count1,sum2/count2,sum3/count3,sum4/count4,sum5/count5);
+  console.log("data",pie_sum,val);
+
+var pie = d3.pie()
+.value(function(d) {return d; });
+// console.log("hi",val)
+var data_ready = pie(val);
+var color = ["red","blue","pink","orange","yellow"]
+var pie1 = [{data: 1, index: 0, value: 1, startAngle: 0, endAngle: 1.2566370614359172, padAngle: 0},
+{data: 1, index: 1, value: 1, startAngle: 1.2566370614359172, endAngle: 2.5132741228718345, padAngle: 0},
+{data: 1, index: 2, value: 1, startAngle: 2.5132741228718345, endAngle: 3.7699111843077517, padAngle: 0},
+{data: 1, index: 3, value: 1, startAngle: 3.7699111843077517, endAngle: 5.026548245743669, padAngle: 0},
+{data: 1, index: 4, value: 1, startAngle: 5.026548245743669, endAngle: 6.283185307179586, padAngle: 0}]
+
+// console.log("yoshi",pie1)
+// console.log("amy",data_ready)
+for(i=0;i<pie1.length;i++)
+{
+  pie1[i].data=pie_sum[i];
+  pie1[i].value=pie_sum[i];
+}
+svg
+  .selectAll('whatever')
+  .data(pie1) 
+  .enter()
+  .append('path')
+  .attr('d', d3.arc()
+    .innerRadius(0)
+    .outerRadius(function(d,i){
+         //console.log("radius",i,radius[i]);
+      return 35*pie_sum[i];})  
+    )
+  .attr('fill', function(d,i){
+    return color[i];
+  })
+  .attr("stroke", "black")
+  .style("stroke-width", "2px")
+  .style("opacity", 0.7)
  }
  function lineChart(line_avg,dictt)
  {
