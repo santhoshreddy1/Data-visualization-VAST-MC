@@ -6,7 +6,9 @@
     margin: auto;
     margin-top: 10px;
   }
-
+  select {
+  font-family: Cursive;
+}
 
   rect .bars {
     fill: blue;

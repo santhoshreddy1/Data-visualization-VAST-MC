@@ -10,14 +10,12 @@ var Mapwidth = 550;
 var Mapheight =470;
 var svgMap;
 var divM;
+var line_data;
 var dictt={}
 var uncerData,barData;
 var extent = [0.0, 10.0]
 var colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
                      .domain(extent);
-
-
-
 
 document.addEventListener('DOMContentLoaded', function() {
     // svg = d3.select('#map');
@@ -59,6 +57,8 @@ function getCumalativeValues(){
                     cumulative_map.push(data[k])
                 }
             }
+    line_data=cumulative_map;
+    //console.log(current_time,line_data);
     });
   // here we finally compute a cumulative sum of all values per city
   // index of final data array ie 1,2,3...19 gives the cumulative sum per attribute like app response
@@ -307,20 +307,24 @@ function changeslider()
  }
  function pieChart()
  {
-// use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
+
  }
  function lineChart(line_avg,dictt)
  {
- // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
 
  var lheight=400;
- var lwidth=650;
+ var lwidth=550;
  var lmargin={top:60,right:30,bottom:20,left: 150};
+
+
+var loc_val=document.getElementById("loc-select").value;
+console.log(loc_val);
 
  var div = d3.select("body").append("div")
       .attr("class", "tooltip-donut")
       .style("opacity", 0);
  //d3.select("#linechart").selectAll("svg").remove();
+
 
  var lsvg = d3.select("#linechart")
      .attr("width", lwidth + lmargin.left + lmargin.right+400)
@@ -342,33 +346,33 @@ function changeslider()
   line_avg.forEach((e)=>!isNaN(e)?avg_copy.push(e):avg_copy.push(0))
 
   avg_copy.sort(function(a, b){return a - b});
+  if(loc_val=='first'){var first = line_avg.indexOf(avg_copy[avg_copy.length-1])+1;}
+  if(loc_val=='second'){var first =line_avg.indexOf(avg_copy[avg_copy.length-2])+1;}
+  if(loc_val=='third'){var first =line_avg.indexOf(avg_copy[avg_copy.length-3])+1;}
 
-  var first=line_avg.indexOf(avg_copy[avg_copy.length-1]);
-  var second=line_avg.indexOf(avg_copy[avg_copy.length-2]);
-  var third =line_avg.indexOf(avg_copy[avg_copy.length-3]);
-  ////console.log('first',third);
-  ////console.log(dictt["2020-04-06 00:00:00"]);
+  console.log(first);
+
+
+  //////////console.log(dictt["2020-04-06 00:00:00"]);
   var top=[]
-  top=[first,second,third]
-  ////console.log(first,line_avg,avg_copy);
+  top=[first]
+  //////////console.log(first,line_avg,avg_copy);
 
   time_map = new Array();
   datamap.forEach(function(data){
           for( k in data){
             time_map.push(data[k].time)
           }})
- // //console.log(time_map);
+ // ////////console.log(time_map);
 
  let time_five=new Array()
 
  var parseTime = d3.timeParse("%m-%d-%Y %H:%M");
 
  let final_time=new Set(time_map);
- // //console.log(final_time);
- // //console.log(current_time);
+
   time_array = Array.from(final_time);
-  ////console.log(time_array[0+1]);
-  ////console.log(time_array.indexOf(current_time));
+
   k=time_array.indexOf(current_time)
   if(k< 4){
     for(var i=0; i<=k;i++){
@@ -391,7 +395,7 @@ function changeslider()
     }
   }
 }
-//console.log('time',time_five);
+////////console.log('time',time_five);
 var plot_data=[]
 for(var t in top){
   for(var s in time_five){
@@ -405,22 +409,37 @@ for(var t in top){
 }
 
 
-var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
-  .key(function(d) {  return d[1];})
-  .entries(plot_data);
 
+var fin_data=[];
+line_data.forEach(function(d){
+  if(d.location==first){
+fin_data.push([new Date(d.time),d.location,'roads_and_bridges',d.roads_and_bridges]);
+fin_data.push([new Date(d.time),d.location,'power',d.power]);
+fin_data.push([new Date(d.time),d.location,'sewer_and_water',d.sewer_and_water]);
+fin_data.push([new Date(d.time),d.location,'medical',d.medical]);
+fin_data.push([new Date(d.time),d.location,'buildings',d.buildings]);
+
+}
+})
+//console.log(fin_data,current_time,first);
+
+console.log(first,line_avg,avg_copy,fin_data);
+var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
+  .key(function(d) {  return d[2];})
+  .entries(fin_data);
+
+//console.log(sumstat);
 var res = sumstat.map(function(d){ return d.key})
 
-
   var x = d3.scaleTime()
-      .domain(d3.extent(plot_data, function(d) {return d[0]; }))
+      .domain(d3.extent(fin_data, function(d) {return d[0]; }))
       .range([0,lwidth-30]);
 
       lsvg.append("g")
       .attr("transform", `translate(0,${lheight - lmargin.bottom+20})`)
       .attr("class","axisGray")
       .call(d3.axisBottom(x)
-        .ticks(5))
+        .ticks(10))
       .style("stroke","gray")
       .style("opacity",0.6)
       .call(g => g.select(".domain")
@@ -448,7 +467,7 @@ lsvg.append("text")
 ;
 
 
-  //console.log(res);
+  ////////console.log(res);
   var y = d3.scaleLinear()
     .domain([0,10])
     .range([ lheight, 0 ]);
@@ -470,6 +489,21 @@ lsvg.append("text")
 
   lsvg.append("g")
   .call(x);
+
+
+
+lsvg.append("circle").attr("cx",530).attr("cy",30).attr("r", 6).style("fill", '#e41a1c')
+lsvg.append("circle").attr("cx",530).attr("cy",60).attr("r", 6).style("fill", '#377eb8')
+lsvg.append("circle").attr("cx",530).attr("cy",90).attr("r", 6).style("fill", '#4daf4a')
+lsvg.append("circle").attr("cx",530).attr("cy",120).attr("r", 6).style("fill", '#984ea3')
+lsvg.append("circle").attr("cx",530).attr("cy",150).attr("r", 6).style("fill", '#ff7f00')
+lsvg.append("text").attr("x", 550).attr("y", 30).text("roads_and_bridges").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 550).attr("y", 60).text("power").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 550).attr("y", 90).text("sewer_and_water").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 550).attr("y", 120).text("medical").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 550).attr("y", 150).text("buildings").style("font-size", "15px").attr("alignment-baseline","middle")
+
+
 
 
   lsvg.append("text")
@@ -497,7 +531,6 @@ lsvg.append("text")
           .attr('r', 10)
           .style("opacity", 0)
 
-      // Create the text that travels along the curve of chart
       var focusText = lsvg
         .append('g')
         .append('text')
@@ -506,12 +539,9 @@ lsvg.append("text")
           .attr("alignment-baseline", "middle")
 
 
-
-
-
   var color = d3.scaleOrdinal()
     .domain(res)
-    .range(['#377eb8','#e41a1c','#4daf4a'])
+    .range(['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'])
 
 
     lsvg.selectAll(".line")
@@ -528,7 +558,7 @@ lsvg.append("text")
           .attr("d", function(d){
           return d3.line()
               .x(function(d) { return x(d[0]); })
-              .y(function(d) { return y(+d[2]); })
+              .y(function(d) { return y(+d[3]); })
               (d.values)
           })
 
@@ -552,11 +582,11 @@ lsvg.append("text")
           function mousemove() {
             // recover coordinate we need
             var x0 = x.invert(d3.mouse(this)[0]);
-            var i = bisect(plot_data, x0, 1);
-            selectedData = plot_data[i]
+            var i = bisect(fin_data, x0, 1);
+            selectedData = fin_data[i]
             focus
               .attr("cx", x(selectedData[0]))
-              .attr("cy", y(selectedData[2]))
+              .attr("cy", y(selectedData[3]))
 
             div.transition()
                 .duration(50)
@@ -564,7 +594,7 @@ lsvg.append("text")
 
            div.html("Tim: "+selectedData[0]+
                                               "</br>" +
-                                              "Impact: "+ selectedData[2])
+                                              "Impact: "+ selectedData[3])
               .style("left", (d3.event.pageX +8) + "px")
               .style("top", (d3.event.pageY - 15) + "px");
 
