@@ -1,4 +1,4 @@
-var svg;
+var svg,loc=25;
 var start_time="2020-04-06 00:00:00";
 var datamap;
 var mapdata;
@@ -23,6 +23,7 @@ var cnt = 0 ;
 
 document.addEventListener('DOMContentLoaded', function() {
     // svg = d3.select('#map');
+    d3.select("#rangeSlider").property("value",1586156400)
     Promise.all([d3.json('data/map-geo.json')]).then(function(json){
         mapdata = json
     })
@@ -105,7 +106,6 @@ function  drawallCharts()
     gridChart();
     innovativeChart();
 }
-
 var myTimer;
 function changebuttuon()
 {
@@ -123,7 +123,7 @@ function changebuttuon()
       drawallCharts();
       if (t == 0) { t = +b.property("min"); }
       b.property("value", t);
-    }, 1000);
+    }, 2000);
     document.getElementById("action").value="Pause";
   }
   else{
@@ -134,21 +134,16 @@ function changebuttuon()
 }
 function changeslider()
 {
-  clearInterval (myTimer);
-  myTimer = setInterval (function() {
       var b= d3.select("#rangeSlider");
       var t = (+b.property("value") + 300) % (+b.property("max") + 300);
       var t1= (+b.property("value") - 3300) % (+b.property("max") - 3300)
       last_time=formatDT(new Date(t1*1000));
       current_time=formatDT(new Date(t*1000));
       document.getElementById("date").value=current_time;
-      drawallCharts();
-      if (t == 0) { t = +b.property("max");
-      clearInterval (myTimer); }
+    
       b.property("value", t);
-
-    }, 1000);
-    document.getElementById("action").value="Pause";
+      clearInterval (myTimer)
+      drawallCharts();
 }
 
  function zeroPad(num, places) {
@@ -195,7 +190,7 @@ function changeslider()
     updateMapData();
     ////console.log("------------")
      ////console.log(mapdata[0].features);
-     svgMap.selectAll("path")
+     g.selectAll("path")
         .data(mapdata[0].features)
         .enter()
         .append("path")
@@ -211,6 +206,19 @@ function changeslider()
             })
         .attr("title", function(d,i) {
         return d.properties.Nbrhood;
+      })
+      .on('mouseover', function() {
+        var header=d3.select(this);
+        header.attr('class','onhovercountrymap');
+      })
+      .on('mouseout', function() {
+        var header=d3.select(this);
+        header.attr('class','countrymap')
+      })
+      .on('click', function(d) {
+      loc=d.properties.Id;
+      console.log(loc)
+      drawallCharts();
       });
 
      svgMap.selectAll(".parish-labels")
@@ -330,8 +338,7 @@ function changeslider()
 
  {
 d3.select("#piechart").selectAll("svg").remove();
-  console.log("Inside Pie Chart");
-  console.log(final_data);
+ 
 
 // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
 var width = 600
@@ -340,13 +347,10 @@ var width = 600
 
 // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
 //var radius = Math.min(width, height) / 2 - margin
-var val=[1,1,1,1,1];
-var radius = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
 
-
+d3.select("#piechart").selectAll("*").remove();
 // append the svg object to the div called 'my_dataviz'
 var svg = d3.select("#piechart")
-  .append("svg")
     .attr("width", width)
     .attr("height", height)
   .append("g")
@@ -364,6 +368,9 @@ var sum3 = 0
 var sum4 = 0
 var sum5 = 0
 console.log("final",final_data);
+var pie_sum = []
+if(loc==25)
+{
 for(let i=1;i<=19;i++){
       if(!Number.isNaN(final_data[i].sewer_and_water)){count1+=1;sum1+=final_data[i].sewer_and_water}
       if(!Number.isNaN(final_data[i].power)){count2+=1;sum2+=final_data[i].power}
@@ -371,14 +378,14 @@ for(let i=1;i<=19;i++){
       if(!Number.isNaN(final_data[i].buildings)){count4+=1;sum4+=final_data[i].buildings}
       if(!Number.isNaN(final_data[i].roads_and_bridges)){count5+=1;sum5+=final_data[i].roads_and_bridges}     
     }
-  var pie_sum = []
-  pie_sum.push(sum1/count1,sum2/count2,sum3/count3,sum4/count4,sum5/count5);
-  console.log("data",pie_sum,val);
-
-var pie = d3.pie()
-.value(function(d) {return d; });
+    pie_sum.push(sum1/count1,sum2/count2,sum3/count3,sum4/count4,sum5/count5);
+  }
+else
+{console.log("inside",loc)
+  pie_sum.push(final_data[loc].sewer_and_water,final_data[loc].power,final_data[loc].medical,final_data[loc].buildings,final_data[loc].roads_and_bridges)
+}
 // console.log("hi",val)
-var data_ready = pie(val);
+// var data_ready = pie(val);
 var color = ["red","blue","pink","orange","yellow"]
 var pie1 = [{data: 1, index: 0, value: 1, startAngle: 0, endAngle: 1.2566370614359172, padAngle: 0},
 {data: 1, index: 1, value: 1, startAngle: 1.2566370614359172, endAngle: 2.5132741228718345, padAngle: 0},
@@ -393,6 +400,7 @@ for(i=0;i<pie1.length;i++)
   pie1[i].data=pie_sum[i];
   pie1[i].value=pie_sum[i];
 }
+radiusscale=d3.scaleLinear().domain([0,10]).range([100,180])
 svg
   .selectAll('whatever')
   .data(pie1) 
@@ -402,7 +410,7 @@ svg
     .innerRadius(0)
     .outerRadius(function(d,i){
          //console.log("radius",i,radius[i]);
-      return 35*pie_sum[i];})  
+      return radiusscale(pie_sum[i]);})  
     )
   .attr('fill', function(d,i){
     return color[i];
