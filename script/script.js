@@ -1,4 +1,4 @@
-var svg,loc=25;
+var svg,seloc=25,isvg;
 var start_time="2020-04-06 00:00:00";
 var datamap;
 var mapdata;
@@ -63,7 +63,6 @@ function getCumalativeValues(){
                 }
             }
     line_data=cumulative_map;
-    console.log(current_time,line_data);
     });
   // here we finally compute a cumulative sum of all values per city
   // index of final data array ie 1,2,3...19 gives the cumulative sum per attribute like app response
@@ -175,7 +174,7 @@ function changeslider()
     .projection(projection);
 
     svgMap = d3.select('#worldMap')
-    .attr("transform", "translate(50,-280)")
+    .attr("transform", "translate(50,-340)")
     .attr('width', Mapwidth)
     .attr('height', Mapheight);
 
@@ -188,8 +187,6 @@ function changeslider()
 
     let g = svgMap.append('g');
     updateMapData();
-    ////console.log("------------")
-     ////console.log(mapdata[0].features);
      g.selectAll("path")
         .data(mapdata[0].features)
         .enter()
@@ -208,17 +205,24 @@ function changeslider()
         return d.properties.Nbrhood;
       })
       .on('mouseover', function() {
-        var header=d3.select(this);
-        header.attr('class','onhovercountrymap');
+        d3.select(this).transition()
+                      .duration('50')
+                      .style('stroke','cyan')
+                      .attr('opacity', '1 ')
+                      .attr('stroke-width','10');
       })
       .on('mouseout', function() {
-        var header=d3.select(this);
-        header.attr('class','countrymap')
+        d3.select(this).transition()
+              .duration('50')
+              .style('stroke','black')
+              .attr('opacity', '1')
+              .attr('stroke-width','1');
       })
       .on('click', function(d) {
-      loc=d.properties.Id;
-      console.log(loc)
-      drawallCharts();
+        seloc=d.properties.Id;
+      // d3.select(".circle"+loc).attr("stroke","cyan");
+      pieChart();
+      innovativeChart();
       });
 
      svgMap.selectAll(".parish-labels")
@@ -367,9 +371,8 @@ var sum2 = 0
 var sum3 = 0
 var sum4 = 0
 var sum5 = 0
-console.log("final",final_data);
 var pie_sum = []
-if(loc==25)
+if(seloc==25)
 {
 for(let i=1;i<=19;i++){
       if(!Number.isNaN(final_data[i].sewer_and_water)){count1+=1;sum1+=final_data[i].sewer_and_water}
@@ -381,8 +384,8 @@ for(let i=1;i<=19;i++){
     pie_sum.push(sum1/count1,sum2/count2,sum3/count3,sum4/count4,sum5/count5);
   }
 else
-{console.log("inside",loc)
-  pie_sum.push(final_data[loc].sewer_and_water,final_data[loc].power,final_data[loc].medical,final_data[loc].buildings,final_data[loc].roads_and_bridges)
+{
+  pie_sum.push(final_data[seloc].sewer_and_water,final_data[seloc].power,final_data[seloc].medical,final_data[seloc].buildings,final_data[seloc].roads_and_bridges)
 }
 // console.log("hi",val)
 // var data_ready = pie(val);
@@ -456,7 +459,6 @@ svg
 
   var top=[]
   top=[first]
-  console.log('cc',first,line_avg,avg_copy);
 
   time_map = new Array();
   datamap.forEach(function(data){
@@ -975,7 +977,7 @@ for(let i = 0 ; i<4 ; i++)
      isvg.selectAll("bars").remove()
      var circle = isvg.selectAll("circle").data(loc).enter()
      .append("circle")
-     .attr("r", 10);
+     
       barData=[];
      circle.interrupt();
 
@@ -1009,6 +1011,10 @@ for(let i = 0 ; i<4 ; i++)
 bars.enter().append("rect")
 .attr("class", "bar")
 .attr("width", 20)
+.attr("fill",function (d,i) {
+  if(seloc==(i+1)) return "cyan";
+  else return "black";
+})
 .attr("x", function(d, i) {
   return xScale(i+1) - (imargin.right/2)
 })
@@ -1022,11 +1028,21 @@ bars.enter().append("rect")
         d3.select(this)
     .attr("cy", (iheight-imargin.bottom-10))
     .attr("cx",  xScale(d) )
+    .attr("class", function(d,i) {return "circle"+d;})
     .style('fill', d => {
 
       return colorScale(avg_val[d-1]);
   })
-  .attr("stroke","black")
+  .attr("r",function (d) {
+    // console.log(d,seloc);
+    if(seloc==d) return 15;
+    else return 10;
+  })
+  .attr("stroke",function (d) {
+    // console.log(d,seloc);
+    if(seloc==d) return "cyan";
+    else return "black";
+  })
     .transition()
 
     .duration(function (params) {
