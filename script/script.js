@@ -850,7 +850,7 @@ for(let i = 0 ; i<4 ; i++)
  // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
  var iheight=150;
  var iwidth=600;
- var imargin={top: 20, right: 20, bottom: 20, left: 20};
+ var imargin={top: 20, right: 20, bottom: 20, left: 60};
 
  var avg_val=[];
  var loc=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
@@ -871,7 +871,7 @@ for(let i = 0 ; i<4 ; i++)
       .attr("y", imargin.top)
       .attr("rx", '0.25em').attr("ry", '0.25em')
       .attr("height", (iheight - imargin.top)*2)
-      .attr("width", iwidth-imargin.right-5)
+      .attr("width", iwidth-imargin.left-5)
       .style("stroke", bordercolor)
       .style("stroke-linecap", "round")
       .style("fill", "none")
@@ -892,13 +892,53 @@ for(let i = 0 ; i<4 ; i++)
 
   isvg.append("g")
   .attr("class", "xAxis")
-  .attr("transform", "translate("+0+","+ (iheight-imargin.bottom)+ ")")
+  .attr("transform", "translate(0,"+ (iheight-imargin.bottom)+ ")")
   .call(xaxis);
 
   isvg.append("g")
   .attr("class", "yAxis")
   .attr("transform", "translate("+imargin.left+","+ (iheight-imargin.bottom)+ ")")
   .call(yaxis)
+
+  // Uncertainty Label
+  isvg.append("text")
+  .attr("class", "yAxisLabel")
+  .attr("transform", "rotate(-90)")
+  .attr("x", -iheight-imargin.left)
+  .attr("y", imargin.right)
+  .attr("dy", "1em")
+  .style("text-anchor", "middle")
+  .text("Uncertainty")
+  .style("font-family","sans-serif")
+  .attr("fill","black")
+  .style("opacity",0.9)
+  .style("font-weight",200)
+
+  // Damage Intensity Label
+  damageLabel = isvg.append("text")
+  .attr("class", "yAxisLabel")
+  .attr("transform", "rotate(-90)")
+  .attr("x", -iheight+imargin.left+10)
+  .attr("y", imargin.right-10)
+  .attr("dy", "1em")
+  .style("text-anchor", "middle");
+
+  damageLabel.append("tspan")
+            .attr("x", -iheight+imargin.left+10)
+            .attr("dy", "1.2em")
+            .text("Damage");
+
+  damageLabel.append("tspan")
+            .attr("x", -iheight+imargin.left+10)
+            .attr("dy", "1.2em")
+            .text("Intensity")
+  
+  d3.selectAll('tspan')
+    .style("font-family","sans-serif")
+    .attr("fill","black")
+    .style("opacity",0.9)
+    .style("font-weight",200)
+
 
   isvg.select('.xAxis').selectAll(".tick")
     .each(function (d, i) {
@@ -953,9 +993,9 @@ for(let i = 0 ; i<4 ; i++)
 
 bars.enter().append("rect")
 .attr("class", "bar")
-.attr("width", imargin.left)
+.attr("width", 20)
 .attr("x", function(d, i) {
-  return xScale(i+1) - (imargin.left/2)
+  return xScale(i+1) - (imargin.right/2)
 })
 .attr("y", iheight)
 .attr("height", function(d) {
