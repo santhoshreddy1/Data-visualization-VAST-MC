@@ -285,6 +285,13 @@ function changeslider()
     .attr("height", barHeight)
     .style("fill", "url(#linear-gradient)");
 
+  legendGroup
+       .append("text")
+       .attr("x", 100)
+        .attr("y", -30)
+        .style("fill", "black")
+        .text("Reported Damage Intensity Levels")
+
   var legendScale = d3
     .scaleLinear()
     .domain([0, extent[1]])
