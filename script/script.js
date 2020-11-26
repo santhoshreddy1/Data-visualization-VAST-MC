@@ -139,7 +139,7 @@ function changeslider()
       last_time=formatDT(new Date(t1*1000));
       current_time=formatDT(new Date(t*1000));
       document.getElementById("date").value=current_time;
-    
+
       b.property("value", t);
       clearInterval (myTimer)
       drawallCharts();
@@ -343,7 +343,7 @@ function changeslider()
 
  {
 d3.select("#piechart").selectAll("svg").remove();
- 
+
 
 // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
 var width = 600
@@ -380,7 +380,7 @@ for(let i=1;i<=19;i++){
       if(!Number.isNaN(final_data[i].power)){count2+=1;sum2+=final_data[i].power}
       if(!Number.isNaN(final_data[i].medical)){count3+=1;sum3+=final_data[i].medical}
       if(!Number.isNaN(final_data[i].buildings)){count4+=1;sum4+=final_data[i].buildings}
-      if(!Number.isNaN(final_data[i].roads_and_bridges)){count5+=1;sum5+=final_data[i].roads_and_bridges}     
+      if(!Number.isNaN(final_data[i].roads_and_bridges)){count5+=1;sum5+=final_data[i].roads_and_bridges}
     }
     pie_sum.push(sum1/count1,sum2/count2,sum3/count3,sum4/count4,sum5/count5);
   }
@@ -407,14 +407,14 @@ for(i=0;i<pie1.length;i++)
 radiusscale=d3.scaleLinear().domain([0,10]).range([100,180])
 svg
   .selectAll('whatever')
-  .data(pie1) 
+  .data(pie1)
   .enter()
   .append('path')
   .attr('d', d3.arc()
     .innerRadius(0)
     .outerRadius(function(d,i){
          //console.log("radius",i,radius[i]);
-      return radiusscale(pie_sum[i]);})  
+      return radiusscale(pie_sum[i]);})
     )
   .attr('fill', function(d,i){
     return color[i];
@@ -427,8 +427,8 @@ svg
  {
 
  var lheight=400;
- var lwidth=550;
- var lmargin={top:60,right:30,bottom:20,left: 150};
+ var lwidth=750;
+ var lmargin={top:60,right:10,bottom:20,left: 150};
 
  var div = d3.select("body").append("div")
       .attr("class", "tooltip-donut")
@@ -468,7 +468,7 @@ svg
           }})
  // ////////////console.log(time_map);
 
-
+var dictt={}
 ////////////console.log('time',time_five);
 var plot_data=[]
 
@@ -477,16 +477,58 @@ var time_x=[]
 line_data.forEach(function(d){
   time_x.push(new Date([d.time]));
   if(d.location==first){
+    if(dictt[new Date(d.time)])
+    { dictt[new Date(d.time)]=1;
+    }
+    else{
+      dictt[new Date(d.time)]=1;
+    }
 fin_data.push([new Date(d.time),d.location,'roads_and_bridges',d.roads_and_bridges]);
 fin_data.push([new Date(d.time),d.location,'power',d.power]);
 fin_data.push([new Date(d.time),d.location,'sewer_and_water',d.sewer_and_water]);
 fin_data.push([new Date(d.time),d.location,'medical',d.medical]);
 fin_data.push([new Date(d.time),d.location,'buildings',d.buildings]);
-
 }
 })
 //console.log('loc',first);
 //////console.log(fin_data,current_time,first);
+
+
+
+var s=time_x.filter((date, i, self) =>
+  self.findIndex(d => d.getTime() === date.getTime()) === i
+)
+
+////console.log('ff',s,dictt);
+var c=0;
+for(var y=0;y<s.length;y++){
+  var k=s[y]
+  if(dictt[k]){
+    c+=1
+  }
+  else{
+    fin_data.push([new Date(k),String(first),'roads_and_bridges','0']);
+    fin_data.push([new Date(k),String(first),'power','0']);
+    fin_data.push([new Date(k),String(first),'sewer_and_water','0']);
+    fin_data.push([new Date(k),String(first),'medical','0']);
+    fin_data.push([new Date(k),String(first),'buildings','0']);
+  }
+
+}
+
+let new_data=fin_data.sort(function(a, b) {
+  return a[0] - b[0];
+})
+console.log('new',new_data);
+fin_data=[]
+fin_data=new_data;
+
+
+
+////console.log('ee',fin_data);
+console.log('ll',current_time,last_time);
+
+
 
 //console.log(first,line_avg,avg_copy,fin_data);
 var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
@@ -557,16 +599,16 @@ lsvg.append("text")
 
 
 
-lsvg.append("circle").attr("cx",530).attr("cy",30).attr("r", 6).style("fill", '#e41a1c')
-lsvg.append("circle").attr("cx",530).attr("cy",60).attr("r", 6).style("fill", '#377eb8')
-lsvg.append("circle").attr("cx",530).attr("cy",90).attr("r", 6).style("fill", '#4daf4a')
-lsvg.append("circle").attr("cx",530).attr("cy",120).attr("r", 6).style("fill", '#984ea3')
-lsvg.append("circle").attr("cx",530).attr("cy",150).attr("r", 6).style("fill", '#ff7f00')
-lsvg.append("text").attr("x", 550).attr("y", 30).text("roads_and_bridges").style("font-size", "15px").attr("alignment-baseline","middle")
-lsvg.append("text").attr("x", 550).attr("y", 60).text("power").style("font-size", "15px").attr("alignment-baseline","middle")
-lsvg.append("text").attr("x", 550).attr("y", 90).text("sewer_and_water").style("font-size", "15px").attr("alignment-baseline","middle")
-lsvg.append("text").attr("x", 550).attr("y", 120).text("medical").style("font-size", "15px").attr("alignment-baseline","middle")
-lsvg.append("text").attr("x", 550).attr("y", 150).text("buildings").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("circle").attr("cx",760).attr("cy",30).attr("r", 6).style("fill", '#e41a1c')
+lsvg.append("circle").attr("cx",760).attr("cy",60).attr("r", 6).style("fill", '#377eb8')
+lsvg.append("circle").attr("cx",760).attr("cy",90).attr("r", 6).style("fill", '#4daf4a')
+lsvg.append("circle").attr("cx",760).attr("cy",120).attr("r", 6).style("fill", '#984ea3')
+lsvg.append("circle").attr("cx",760).attr("cy",150).attr("r", 6).style("fill", '#ff7f00')
+lsvg.append("text").attr("x", 770).attr("y", 33).text("roads_and_bridges").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 770).attr("y", 63).text("power").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 770).attr("y", 93).text("sewer_and_water").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 770).attr("y", 123).text("medical").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 770).attr("y", 153).text("buildings").style("font-size", "15px").attr("alignment-baseline","middle")
 
 
 
@@ -952,7 +994,7 @@ for(let i = 0 ; i<4 ; i++)
             .attr("x", -iheight+imargin.left+10)
             .attr("dy", "1.2em")
             .text("Intensity")
-  
+
   d3.selectAll('tspan')
     .style("font-family","sans-serif")
     .attr("fill","black")
@@ -980,7 +1022,7 @@ for(let i = 0 ; i<4 ; i++)
      isvg.selectAll("bars").remove()
      var circle = isvg.selectAll("circle").data(loc).enter()
      .append("circle")
-     
+
       barData=[];
      circle.interrupt();
 
