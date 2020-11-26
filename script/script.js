@@ -222,6 +222,7 @@ function changeslider()
         seloc=d.properties.Id;
       // d3.select(".circle"+loc).attr("stroke","cyan");
       pieChart();
+      gridChart();
       innovativeChart();
       });
 
@@ -814,8 +815,10 @@ var column = row.selectAll(".square")
   .attr("y", function(d) { return d.y ; })
   .attr("title", function(d){return d.city})
 	.attr("width", function(d) { return d.width;})
-	.attr("height", function(d) { return d.height; })
+  .attr("height", function(d) { return d.height; })
 	.style("fill", function(d){
+    if(seloc==d.city){ console.log(d.city,seloc); return "cyan";}
+    else
     return d.color
   })
 	.style("stroke", "#222")
