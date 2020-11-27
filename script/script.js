@@ -174,7 +174,7 @@ function changeslider()
     .projection(projection);
 
     svgMap = d3.select('#worldMap')
-    .attr("transform", "translate(50,-340)")
+    .attr("transform", "translate(30,0)")
     .attr('width', Mapwidth)
     .attr('height', Mapheight);
 
@@ -342,12 +342,9 @@ function changeslider()
  function pieChart()
 
  {
-d3.select("#piechart").selectAll("svg").remove();
-
-
 // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
-var width = 600
-    height = 600
+var width = 400
+    height = 400
     margin = 40
 
 // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
@@ -356,6 +353,7 @@ var width = 600
 d3.select("#piechart").selectAll("*").remove();
 // append the svg object to the div called 'my_dataviz'
 var svg = d3.select("#piechart")
+.attr("transform", "translate(50,-35)")
     .attr("width", width)
     .attr("height", height)
   .append("g")
@@ -404,7 +402,7 @@ for(i=0;i<pie1.length;i++)
   pie1[i].data=pie_sum[i];
   pie1[i].value=pie_sum[i];
 }
-radiusscale=d3.scaleLinear().domain([0,10]).range([100,180])
+radiusscale=d3.scaleLinear().domain([0,10]).range([60,130])
 svg
   .selectAll('whatever')
   .data(pie1)
@@ -430,9 +428,9 @@ svg
  function lineChart(line_avg,dictt)
  {
 
- var lheight=400;
- var lwidth=750;
- var lmargin={top:60,right:10,bottom:20,left: 150};
+ var lheight=280;
+ var lwidth=450;
+ var lmargin={top:30,right:10,bottom:20,left: 80};
 
  var loc_dictt={
 
@@ -466,14 +464,16 @@ d3.selectAll("#tooll").remove();
  var tooltipp = d3.select("body").append("div").attr("class", "tooltip-donut").style("opacity", 0).attr("id","tooll");
 
  var lsvg = d3.select("#linechart")
-     .attr("width", lwidth + lmargin.left + lmargin.right+400)
+     .attr("width", lwidth )
      .attr("height", lheight + lmargin.top + lmargin.bottom+300)
+     .attr("transform",
+             "translate(" + 700 + "," + (-400) + ")");
 
   lsvg.selectAll("*").remove()
 
   var lsvg = d3.select("#linechart")
-      .attr("width", lwidth + lmargin.left + lmargin.right+300)
-      .attr("height", lheight + lmargin.top + lmargin.bottom+300)
+      .attr("width", lwidth +300)
+      .attr("height", lheight + lmargin.top + lmargin.bottom+45)
        .append("g")
        .attr("transform",
              "translate(" + lmargin.left + "," + lmargin.top + ")");
@@ -582,7 +582,7 @@ var res = sumstat.map(function(d){ return d.key})
 // list of group names
 lsvg.append("text")
     .attr("transform", "rotate(-90)")
-    .attr("y", 0 - lmargin.left+65)
+    .attr("y", 0 - lmargin.left)
     .attr("x",0 - (lheight / 2))
     .attr("dy", "1em")
     .style("text-anchor", "middle")
@@ -619,16 +619,16 @@ lsvg.append("text")
 
 
 
-lsvg.append("circle").attr("cx",760).attr("cy",30).attr("r", 6).style("fill", '#e41a1c')
-lsvg.append("circle").attr("cx",760).attr("cy",60).attr("r", 6).style("fill", '#377eb8')
-lsvg.append("circle").attr("cx",760).attr("cy",90).attr("r", 6).style("fill", '#4daf4a')
-lsvg.append("circle").attr("cx",760).attr("cy",120).attr("r", 6).style("fill", '#984ea3')
-lsvg.append("circle").attr("cx",760).attr("cy",150).attr("r", 6).style("fill", '#ff7f00')
-lsvg.append("text").attr("x", 770).attr("y", 33).text("roads_and_bridges").style("font-size", "15px").attr("alignment-baseline","middle")
-lsvg.append("text").attr("x", 770).attr("y", 63).text("power").style("font-size", "15px").attr("alignment-baseline","middle")
-lsvg.append("text").attr("x", 770).attr("y", 93).text("sewer_and_water").style("font-size", "15px").attr("alignment-baseline","middle")
-lsvg.append("text").attr("x", 770).attr("y", 123).text("medical").style("font-size", "15px").attr("alignment-baseline","middle")
-lsvg.append("text").attr("x", 770).attr("y", 153).text("buildings").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("circle").attr("cx",460).attr("cy",30).attr("r", 6).style("fill", '#e41a1c')
+lsvg.append("circle").attr("cx",460).attr("cy",60).attr("r", 6).style("fill", '#377eb8')
+lsvg.append("circle").attr("cx",460).attr("cy",90).attr("r", 6).style("fill", '#4daf4a')
+lsvg.append("circle").attr("cx",460).attr("cy",120).attr("r", 6).style("fill", '#984ea3')
+lsvg.append("circle").attr("cx",460).attr("cy",150).attr("r", 6).style("fill", '#ff7f00')
+lsvg.append("text").attr("x", 470).attr("y", 33).text("roads_and_bridges").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 470).attr("y", 63).text("power").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 470).attr("y", 93).text("sewer_and_water").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 470).attr("y", 123).text("medical").style("font-size", "15px").attr("alignment-baseline","middle")
+lsvg.append("text").attr("x", 470).attr("y", 153).text("buildings").style("font-size", "15px").attr("alignment-baseline","middle")
 
 
 
@@ -711,6 +711,7 @@ lsvg.append("text").attr("x", 770).attr("y", 153).text("buildings").style("font-
 
          })
  }
+
 
 
 
@@ -798,22 +799,22 @@ updateMapData();
 var gridData = createGrid();
 
 var grid = d3.select("#grid")
-	        .attr("width","510px")
-          .attr("height","510px")
-          .attr("transform", "translate(190,-150)")
+	        .attr("width","350px")
+          .attr("height","380px")
+          .attr("transform", "translate(100,-45)")
 
 grid.selectAll("*").remove();
 
 grid.append("rect")
-.attr("width",156)
+.attr("width",60)
 .attr("height",56)
 .style("fill",colors[0])
-.attr("transform", "translate(-100,290)")
+.attr("transform", "translate(20,290)")
 
 grid.append("text")
 .text("Low")
 .style("stroke","black")
-.attr("transform", "translate(13.5,323)")
+.attr("transform", "translate(30.5,323)")
 
 grid.append("rect")
 .attr("width",60)
@@ -850,8 +851,8 @@ var column = row.selectAll(".square")
 	.enter()
 	.append("rect")
 	.attr("class","square")
-	.attr("x", function(d) { return d.x ; })
-  .attr("y", function(d) { return d.y ; })
+	.attr("x", function(d) { return d.x+15 ; })
+  .attr("y", function(d) { return d.y+20 ; })
   .attr("title", function(d){return d.city})
 	.attr("width", function(d) { return d.width;})
   .attr("height", function(d) { return d.height; })
@@ -908,14 +909,14 @@ for(let i = 0 ; i<4 ; i++)
  {
  // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
  var iheight=150;
- var iwidth=600;
+ var iwidth=650;
  var imargin={top: 20, right: 20, bottom: 20, left: 60};
 
  var avg_val=[];
  var loc=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
 
   isvg = d3.select('#imap')
-  .attr("transform", "translate(700,0)")
+  .attr("transform", "translate(30,20)")
   .attr('width', iwidth)
   .attr('height', iheight*2);
 
@@ -930,7 +931,7 @@ for(let i = 0 ; i<4 ; i++)
       .attr("y", imargin.top)
       .attr("rx", '0.25em').attr("ry", '0.25em')
       .attr("height", (iheight - imargin.top)*2)
-      .attr("width", iwidth-imargin.left-5)
+      .attr("width", iwidth-imargin.left-20)
       .style("stroke", bordercolor)
       .style("stroke-linecap", "round")
       .style("fill", "none")
@@ -938,7 +939,7 @@ for(let i = 0 ; i<4 ; i++)
 
   xScale = d3.scalePoint()
             .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19])
-            .range([imargin.left,iwidth-imargin.right]);
+            .range([imargin.left,iwidth-imargin.right-20]);
   yScale = d3.scaleLinear()
             .domain([10, 0])
             // .range([iheight-imargin.top, 0]);

@@ -6,6 +6,10 @@
     margin: auto;
     margin-top: 10px;
   }
+  svg{
+    border:5px solid rgba(148, 144, 144, 0.3);;
+    border-radius:10px;
+  }
   select {
   font-family: Cursive;
 }
