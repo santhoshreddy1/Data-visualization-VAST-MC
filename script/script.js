@@ -423,6 +423,10 @@ svg
   .style("stroke-width", "2px")
   .style("opacity", 0.7)
  }
+
+
+
+
  function lineChart(line_avg,dictt)
  {
 
@@ -430,11 +434,36 @@ svg
  var lwidth=750;
  var lmargin={top:60,right:10,bottom:20,left: 150};
 
+ var loc_dictt={
+
+1:"Palace Hills",
+2:"Northwest",
+3:"Old Town",
+4:"Safe Town",
+5:"Southwest",
+6:"Downtown",
+7:"Wilson Forest",
+8:"Scenic Vista",
+9:"Broadview",
+10:"Chapparal",
+11:"Terrapin Springs",
+12:"Pepper Mill",
+13:"Cheddarford",
+14:"Easton",
+15:"Weston",
+16:"Southton",
+17:"Oak Willow",
+18:"East Parton",
+19:"West Parton",
+}
+
+d3.selectAll("#tooll").remove();
+
  var div = d3.select("body").append("div")
       .attr("class", "tooltip-donut")
       .style("opacity", 0);
  //d3.select("#linechart").selectAll("svg").remove();
-
+ var tooltipp = d3.select("body").append("div").attr("class", "tooltip-donut").style("opacity", 0).attr("id","tooll");
 
  var lsvg = d3.select("#linechart")
      .attr("width", lwidth + lmargin.left + lmargin.right+400)
@@ -490,9 +519,6 @@ fin_data.push([new Date(d.time),d.location,'medical',d.medical]);
 fin_data.push([new Date(d.time),d.location,'buildings',d.buildings]);
 }
 })
-//console.log('loc',first);
-//////console.log(fin_data,current_time,first);
-
 
 
 var s=time_x.filter((date, i, self) =>
@@ -519,14 +545,8 @@ for(var y=0;y<s.length;y++){
 let new_data=fin_data.sort(function(a, b) {
   return a[0] - b[0];
 })
-console.log('new',new_data);
 fin_data=[]
 fin_data=new_data;
-
-
-
-////console.log('ee',fin_data);
-console.log('ll',current_time,last_time);
 
 
 
@@ -668,51 +688,28 @@ lsvg.append("text").attr("x", 770).attr("y", 153).text("buildings").style("font-
               .y(function(d) { return y(+d[3]); })
               (d.values)
           })
+      	.style("cursor", "pointer")
+          .on('mouseover', function(d,i)
+          {
+            d3.select(this).attr('class','hoverLineyMap');
+          })
+          .on('mousemove',function(d)
+          {
 
+      		tooltipp.style("opacity", 1).transition().duration(50);
+          //console.log(d.values[0]);
+          var t_format=d3.timeFormat("%B %d, %I:%M %p")
+          var x0 = x.invert(d3.mouse(this)[0]);
+          var y0 = y.invert(d3.mouse(this)[1]);
 
-          lsvg
-            .append('rect')
-            .style("fill", "none")
-            .style("pointer-events", "all")
-            .attr('width', lwidth)
-            .attr('height', lheight)
-            .on('mouseover', mouseover)
-            .on('mousemove', mousemove)
-            .on('mouseout', mouseout);
+          var title = "Time:" + t_format(x0) +"<br>"+ "Location: " + loc_dictt[String(first)] + "<br>" +  "Impact: " +y0 + "<br>";
+          tooltipp.html(title).style("top", (d3.event.pageY - 15) + "px").style("left", (d3.event.pageX + 10) + "px");
+        }).on('mouseout', function(d,i)
+         {
+           d3.select(this).attr('class','Linemap')
+           tooltipp.style("opacity", 0).transition().duration('50');
 
-          // What happens when the mouse move -> show the annotations at the right positions.
-          function mouseover() {
-            focus.style("opacity", 1)
-            focusText.style("opacity",1)
-          }
-
-          function mousemove() {
-            // recover coordinate we need
-            var x0 = x.invert(d3.mouse(this)[0]);
-            var i = bisect(fin_data, x0, 1);
-            selectedData = fin_data[i]
-            focus
-              .attr("cx", x(selectedData[0]))
-              .attr("cy", y(selectedData[3]))
-
-            div.transition()
-                .duration(50)
-                .style("opacity", 1);
-
-           div.html("Tim: "+selectedData[0]+
-                                              "</br>" +
-                                              "Impact: "+ selectedData[3])
-              .style("left", (d3.event.pageX +8) + "px")
-              .style("top", (d3.event.pageY - 15) + "px");
-
-            }
-          function mouseout() {
-            //div.select("svg").remove();
-            div.transition()
-                .duration(50)
-                .style("opacity", 0);
-            focus.style("opacity",0);
-          }
+         })
  }
 
 
