@@ -1,8 +1,7 @@
 var svg,seloc=25,isvg;
-var start_time="2020-04-06 00:00:00";
 var datamap;
 var mapdata;
-var current_time="2020-04-06 00:00:00";
+var current_time="2020-04-06 01:00:00";
 var last_time="2020-04-06 00:00:00"
 var final_data;
 var cumulative;
@@ -119,6 +118,7 @@ function changebuttuon()
       last_time=formatDT(new Date(t1*1000));
       current_time=formatDT(new Date(t*1000));
       document.getElementById("date").value=current_time;
+      console.log(t,t1)
       drawallCharts();
       if (t == 0) { t = +b.property("min"); }
       b.property("value", t);
@@ -139,7 +139,7 @@ function changeslider()
       last_time=formatDT(new Date(t1*1000));
       current_time=formatDT(new Date(t*1000));
       document.getElementById("date").value=current_time;
-
+      console.log(t,t1)
       b.property("value", t);
       clearInterval (myTimer)
       drawallCharts();
@@ -161,6 +161,7 @@ function changeslider()
 
  function heatMap()
  {
+  d3.selectAll(".tooltip-donut").remove();
      divM = d3.select("body").append("div")
      .attr("class", "tooltip-donut")
      .style("opacity", 0);
@@ -179,7 +180,7 @@ function changeslider()
     .attr('height', Mapheight);
 
     svgMap.selectAll("*").remove();
-
+  
     svgMap.append('rect')
     .style("fill","white")
     .attr('width', Mapwidth)
@@ -204,12 +205,22 @@ function changeslider()
         .attr("title", function(d,i) {
         return d.properties.Nbrhood;
       })
-      .on('mouseover', function() {
+      .on('mouseover', function(d) {
         d3.select(this).transition()
                       .duration('50')
                       .style('stroke','cyan')
                       .attr('opacity', '1 ')
                       .attr('stroke-width','10');
+                      divM.transition()
+                                    .duration(50)
+                                    .style("opacity", 1);
+                              divM.html(d.properties.Nbrhood)
+                                    .style("left", (d3.event.pageX + 10) + "px")
+                                    .style("top", (d3.event.pageY - 15) + "px");
+                                    seloc=d.properties.Id;
+                                    pieChart();
+                                    gridChart();
+                                    innovativeChart();
       })
       .on('mouseout', function() {
         d3.select(this).transition()
@@ -217,14 +228,20 @@ function changeslider()
               .style('stroke','black')
               .attr('opacity', '1')
               .attr('stroke-width','1');
+              divM.transition()
+                           .duration('50')
+                           .style("opacity", 0);
+                           seloc=25;
+                           pieChart();
+                           gridChart();
+                           innovativeChart();
       })
-      .on('click', function(d) {
-        seloc=d.properties.Id;
-      // d3.select(".circle"+loc).attr("stroke","cyan");
-      pieChart();
-      gridChart();
-      innovativeChart();
-      });
+      // .on('click', function(d) {
+      //   seloc=d.properties.Id;
+      //   pieChart();
+      //   gridChart();
+      //   innovativeChart();
+      // });
 
      svgMap.selectAll(".parish-labels")
         .data(mapdata[0].features)
@@ -478,15 +495,17 @@ d3.selectAll("#tooll").remove();
        .attr("transform",
              "translate(" + lmargin.left + "," + lmargin.top + ")");
 
- //lsvg.selectAll("*").remove()
- //d3.select("#linechart").selectAll("svg").remove()
-
   avg_copy =[];
   line_avg.forEach((e)=>!isNaN(e)?avg_copy.push(e):avg_copy.push(0))
 
   avg_copy.sort(function(a, b){return a - b});
+  if(seloc==25)
+  {
   var first = line_avg.indexOf(avg_copy[avg_copy.length-1])+1;
-
+  }
+  else{
+  var first=seloc
+  }
   var top=[]
   top=[first]
 
@@ -1071,7 +1090,7 @@ bars.enter().append("rect")
         d3.select(this)
     .attr("cy", (iheight-imargin.bottom-10))
     .attr("cx",  xScale(d) )
-    .attr("class", function(d,i) {return "circle"+d;})
+    // .attr("class", function(d,i) {return "circle"+d;})
     .style('fill', d => {
 
       return colorScale(avg_val[d-1]);
@@ -1085,6 +1104,11 @@ bars.enter().append("rect")
     // console.log(d,seloc);
     if(seloc==d) return "cyan";
     else return "black";
+  })
+  .attr("stroke-width",function (d) {
+    // console.log(d,seloc);
+    if(seloc==d) return "5";
+    else return "1";
   })
     .transition()
 
