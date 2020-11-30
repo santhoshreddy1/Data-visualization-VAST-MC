@@ -66,7 +66,8 @@ input[type=range]:focus::-moz-range-track {
 }
 
 .action{
-  margin-top: -45px;
+  margin-top: -50px;
+  margin-left: 10px;
 }
 
 .action label

@@ -17,6 +17,28 @@ var IntensityArray = ["Low", "Medium", "High"];
 var extent = [0.0, 10.0]
 var colorScale = d3.scaleSequential(d3.interpolateYlOrRd)
                      .domain(extent);
+                     var loc_dictt={
+
+                      1:"Palace Hills",
+                      2:"Northwest",
+                      3:"Old Town",
+                      4:"Safe Town",
+                      5:"Southwest",
+                      6:"Downtown",
+                      7:"Wilson Forest",
+                      8:"Scenic Vista",
+                      9:"Broadview",
+                      10:"Chapparal",
+                      11:"Terrapin Springs",
+                      12:"Pepper Mill",
+                      13:"Cheddarford",
+                      14:"Easton",
+                      15:"Weston",
+                      16:"Southton",
+                      17:"Oak Willow",
+                      18:"East Parton",
+                      19:"West Parton",
+                      }
 var border=1; var bordercolor='black';
 var cnt = 0 ;
 
@@ -236,12 +258,7 @@ function changeslider()
                            gridChart();
                            innovativeChart();
       })
-      // .on('click', function(d) {
-      //   seloc=d.properties.Id;
-      //   pieChart();
-      //   gridChart();
-      //   innovativeChart();
-      // });
+    
 
      svgMap.selectAll(".parish-labels")
         .data(mapdata[0].features)
@@ -253,34 +270,6 @@ function changeslider()
         .attr("text-anchor", "middle")
         .text(function(d) { return d.properties.Id; });
 
-//       .on('mouseover', function(d,i) {
-//         d3.select(this).transition()
-//               .duration('50')
-//               .style('stroke','cyan')
-//               .attr('opacity', '.85')
-//               .attr('stroke-width','4');
-//        divM.transition()
-//               .duration(50)
-//               .style("opacity", 1);
-//         divM.html(d.properties.Nbrhood)
-//               .style("left", (d3.event.pageX + 10) + "px")
-//               .style("top", (d3.event.pageY - 15) + "px");
-//               if(d.properties.Nbrhood ==="Wilson Forest"){
-//                ////console.log(d.properties)
-//               }
-//           ////console.log('mouseover on ' + d.properties.Nbrhood);
-//    })
-//    .on('mouseout', function(d,i) {
-//        d3.select(this).transition()
-//               .duration('50')
-//               .style('stroke','black')
-//               .attr('opacity', '1')
-//               .attr('stroke-width','1');
-//        divM.transition()
-//              .duration('50')
-//              .style("opacity", 0);
-//      ////console.log('mouseout on ' + d.properties.Nbrhood);
-//    });
 
     var lineInnerHeight = 430;
 
@@ -359,10 +348,17 @@ function changeslider()
  function pieChart()
 
  {
+  d3.selectAll(".tooltip-donut").remove();
+  divM = d3.select("body").append("div")
+  .attr("class", "tooltip-donut")
+  .style("opacity", 0);
+  var width = 400
+  height = 400
+  margin = 40
+
+  
 // use final_data map to get access to all cumalative values. Index of Final Data is Location no. Ignore Index zero.
-var width = 400
-    height = 400
-    margin = 40
+
 
 // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
 //var radius = Math.min(width, height) / 2 - margin
@@ -374,8 +370,8 @@ var svg = d3.select("#piechart")
     .attr("width", width)
     .attr("height", height)
   .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
+    .attr("transform", "translate(" + width/2  + "," + height/2  + ")");
+   
 
 var count1 = 0
 var count2 = 0
@@ -403,8 +399,7 @@ else
 {
   pie_sum.push(final_data[seloc].sewer_and_water,final_data[seloc].power,final_data[seloc].medical,final_data[seloc].buildings,final_data[seloc].roads_and_bridges)
 }
-// console.log("hi",val)
-// var data_ready = pie(val);
+var attr=["sewer_and_water","power","medical","buildings","roads_and_bridges"]
 var color = ["red","blue","pink","orange","yellow"]
 var pie1 = [{data: 1, index: 0, value: 1, startAngle: 0, endAngle: 1.2566370614359172, padAngle: 0},
 {data: 1, index: 1, value: 1, startAngle: 1.2566370614359172, endAngle: 2.5132741228718345, padAngle: 0},
@@ -412,8 +407,6 @@ var pie1 = [{data: 1, index: 0, value: 1, startAngle: 0, endAngle: 1.25663706143
 {data: 1, index: 3, value: 1, startAngle: 3.7699111843077517, endAngle: 5.026548245743669, padAngle: 0},
 {data: 1, index: 4, value: 1, startAngle: 5.026548245743669, endAngle: 6.283185307179586, padAngle: 0}]
 
-// console.log("yoshi",pie1)
-// console.log("amy",data_ready)
 for(i=0;i<pie1.length;i++)
 {
   pie1[i].data=pie_sum[i];
@@ -428,7 +421,6 @@ svg
   .attr('d', d3.arc()
     .innerRadius(0)
     .outerRadius(function(d,i){
-         //console.log("radius",i,radius[i]);
       return radiusscale(pie_sum[i]);})
     )
   .attr('fill', function(d,i){
@@ -437,7 +429,45 @@ svg
   .attr("stroke", "black")
   .style("stroke-width", "2px")
   .style("opacity", 0.7)
- }
+  .on('mouseover', function(d,i) {
+  divM.transition()
+  .duration(50)
+  .style("opacity", 1);
+  divM.html(attr[i]+":"+pie_sum[i].toFixed(2))
+  .style("left", (d3.event.pageX + 10) + "px")
+  .style("top", (d3.event.pageY - 15) + "px");
+                                
+  })
+  .on('mouseout', function() {
+    d3.select(this).transition()
+          .duration('50')
+          .style('stroke','black')
+          .attr('opacity', '1')
+          .attr('stroke-width','1');
+          divM.transition()
+                       .duration('50')
+                       .style("opacity", 0);
+  })
+  svg.append("text")
+  .attr("class","yearText")
+  .attr("fill","black")
+  .attr("x", 0)				
+  .attr("y",  150)
+  .attr("text-anchor", "middle")	
+  .style("font-size", "15px") 
+  .text(function () {
+  
+    if(seloc==25)
+    {
+      return "Impact of all Attributes"
+    }
+    else{
+      return "Impact on "+loc_dictt[seloc-1]+" of all Attributes";
+    }
+    
+  }); 
+
+}
 
 
 
@@ -449,28 +479,7 @@ svg
  var lwidth=450;
  var lmargin={top:30,right:10,bottom:20,left: 80};
 
- var loc_dictt={
 
-1:"Palace Hills",
-2:"Northwest",
-3:"Old Town",
-4:"Safe Town",
-5:"Southwest",
-6:"Downtown",
-7:"Wilson Forest",
-8:"Scenic Vista",
-9:"Broadview",
-10:"Chapparal",
-11:"Terrapin Springs",
-12:"Pepper Mill",
-13:"Cheddarford",
-14:"Easton",
-15:"Weston",
-16:"Southton",
-17:"Oak Willow",
-18:"East Parton",
-19:"West Parton",
-}
 
 d3.selectAll("#tooll").remove();
 
@@ -605,7 +614,7 @@ lsvg.append("text")
     .attr("x",0 - (lheight / 2))
     .attr("dy", "1em")
     .style("text-anchor", "middle")
-    .text("Impact")
+    .text("Impact on "+loc_dictt[String(first)])
     .style("font-family","sans-serif")
     .attr("fill","gray")
     .style("opacity",0.6)
@@ -721,7 +730,7 @@ lsvg.append("text").attr("x", 470).attr("y", 153).text("buildings").style("font-
           var x0 = x.invert(d3.mouse(this)[0]);
           var y0 = y.invert(d3.mouse(this)[1]);
 
-          var title = "Time:" + t_format(x0) +"<br>"+ "Location: " + loc_dictt[String(first)] + "<br>" +  "Impact: " +y0 + "<br>";
+          var title = "Time:" + t_format(x0) +"<br>"+ "Location: " + loc_dictt[String(first)] + "<br>" +  "Impact: " +y0.toFixed(2) + "<br>";
           tooltipp.html(title).style("top", (d3.event.pageY - 15) + "px").style("left", (d3.event.pageX + 10) + "px");
         }).on('mouseout', function(d,i)
          {
