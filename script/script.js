@@ -952,6 +952,14 @@ for(let i = 0 ; i<4 ; i++)
   }
   y += gap ;
 }
+grid.append("text")
+.attr("class","yearText")
+.attr("fill","black")
+.attr("x", 170)				
+.attr("y", 280)
+.attr("text-anchor", "middle")	
+.style("font-size", "15px") 
+.text("App Responses on Locations");
 }
 
  function innovativeChart()
@@ -968,9 +976,6 @@ for(let i = 0 ; i<4 ; i++)
   .attr("transform", "translate(30,20)")
   .attr('width', iwidth)
   .attr('height', iheight*2);
-
-  // var isvg = insvg.append("g")
-  //                 .attr("id", "iplot");
 
   isvg.selectAll("*").remove()
 
@@ -991,7 +996,6 @@ for(let i = 0 ; i<4 ; i++)
             .range([imargin.left,iwidth-imargin.right-20]);
   yScale = d3.scaleLinear()
             .domain([10, 0])
-            // .range([iheight-imargin.top, 0]);
             .range([iheight, 0]);
 
   const xaxis = d3.axisBottom(xScale);
@@ -1105,7 +1109,7 @@ bars.enter().append("rect")
 .attr("width", 20)
 .attr("fill",function (d,i) {
   if(seloc==(i+1)) return "cyan";
-  else return "black";
+  else return "#4D0026";
 })
 .attr("x", function(d, i) {
   return xScale(i+1) - (imargin.right/2)
