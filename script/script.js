@@ -362,7 +362,8 @@ function changeslider()
 
 // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
 //var radius = Math.min(width, height) / 2 - margin
-
+var attr=["sewer_and_water","power","medical","buildings","roads_and_bridges"]
+var color = ["red","blue","pink","orange","yellow"]
 d3.select("#piechart").selectAll("*").remove();
 // append the svg object to the div called 'my_dataviz'
 var svg = d3.select("#piechart")
@@ -370,9 +371,30 @@ var svg = d3.select("#piechart")
     .attr("width", width)
     .attr("height", height)
   .append("g")
-    .attr("transform", "translate(" + width/2  + "," + height/2  + ")");
+    .attr("transform", "translate(" + (width/2)  + "," + (height/2+50)  + ")");
    
-
+    var size = 15
+    
+    svg.selectAll("mydots")
+    .data(attr)
+    .enter()
+    .append("rect")
+        .attr("x", 20)
+        .attr("y", function(d,i){ return -220 + i*(size+1)}) 
+        .attr("width", size)
+        .attr("height", size)
+        .style("fill", function(d,i){return color[i]
+           
+        })
+    
+    svg.selectAll("mylabels")
+    .data(attr)
+    .enter()
+    .append("text")
+        .attr("x", 40)
+        .attr("y", function(d,i){ return -220 + i*(size+1) + 11}) 
+        .text(function(d){ return d})
+        .style("font", "11px sans-serif")
 var count1 = 0
 var count2 = 0
 var count3 = 0
@@ -399,8 +421,7 @@ else
 {
   pie_sum.push(final_data[seloc].sewer_and_water,final_data[seloc].power,final_data[seloc].medical,final_data[seloc].buildings,final_data[seloc].roads_and_bridges)
 }
-var attr=["sewer_and_water","power","medical","buildings","roads_and_bridges"]
-var color = ["red","blue","pink","orange","yellow"]
+
 var pie1 = [{data: 1, index: 0, value: 1, startAngle: 0, endAngle: 1.2566370614359172, padAngle: 0},
 {data: 1, index: 1, value: 1, startAngle: 1.2566370614359172, endAngle: 2.5132741228718345, padAngle: 0},
 {data: 1, index: 2, value: 1, startAngle: 2.5132741228718345, endAngle: 3.7699111843077517, padAngle: 0},
@@ -452,7 +473,7 @@ svg
   .attr("class","yearText")
   .attr("fill","black")
   .attr("x", 0)				
-  .attr("y",  150)
+  .attr("y",  120)
   .attr("text-anchor", "middle")	
   .style("font-size", "15px") 
   .text(function () {
